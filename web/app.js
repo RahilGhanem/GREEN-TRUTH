@@ -175,10 +175,9 @@ async function loadCases() {
       title: "A 2030 pledge, checked against the observed path",
       field: d.suggested_field, text: d.text, expected: "TRAJECTORY", focus: "future_commitment",
       note: d.note,
-      what_to_look_for: "The sentence holds a past result and a 2030 pledge; GreenTruth splits them. " +
-        "The pledge cannot be true or false yet, so it is projected from the observed trend — drawn in a " +
-        "different style from the measurements — and compared with the path required to reach the target. " +
-        "Two further clauses (methane, net zero) have no observation channel and are reported as such.",
+      what_to_look_for: "One sentence, four claims. The 2030 pledge can't be checked yet, so the observed " +
+        "trend is extended and compared with the path to the target. The methane and net-zero clauses have " +
+        "no satellite channel, so they are listed, not checked.",
     };
   } catch { state.pledgeCase = null; }
   const host = $("#wsCases");

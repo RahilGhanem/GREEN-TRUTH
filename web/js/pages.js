@@ -53,7 +53,7 @@ async function renderResearch() {
   const exp1 = t ? experiment({
     n: 1, source: "executed notebook 02", question: "Can the claims be found?",
     headline: `${fmtNum(t.claim_recall, 2)} <small>claim recall</small>`,
-    sub: `The fine-tuned ClimateBERT detector finds ${Math.round(t.claim_recall * 100)}% of the environmental claims in ${det.n_test} held-out sentences; the rule-based fallback finds ${rb ? Math.round(rb.recall_claim * 100) : "—"}%. Macro-F1 ${fmtNum(t.macro_f1, 4)} vs ${rb ? fmtNum(rb.macro_f1, 4) : "—"}.`,
+    sub: `ClimateBERT finds ${Math.round(t.claim_recall * 100)}% of the claims in ${det.n_test} test sentences; the rules find ${rb ? Math.round(rb.recall_claim * 100) : "—"}%. Macro-F1 ${fmtNum(t.macro_f1, 4)} vs ${rb ? fmtNum(rb.macro_f1, 4) : "—"}.`,
     figure: `<div class="cmp">
         <div class="legend" style="margin:0 0 4px"><span class="li"><span class="sw-bar" style="background:var(--green-ink)"></span>ClimateBERT</span>
           <span class="li"><span class="sw-bar" style="background:var(--grey)"></span>Rule-based fallback</span></div>
@@ -62,9 +62,9 @@ async function renderResearch() {
         ${cmpRow("Claim F1", t.claim_f1, rb && rb.f1_claim)}
         ${cmpRow("Macro F1", t.macro_f1, rb && rb.macro_f1)}
         ${cmpRow("Accuracy", t.accuracy, rb && rb.accuracy)}</div>`,
-    caption: `<b>Figure 1.</b> Detection metrics on the <code>climatebert/environmental_claims</code> test split (n = ${det.n_test}, ${Math.round(det.positive_rate * 100)}% claims), threshold ${det.shipped_threshold}. Both detectors on the identical split.`,
-    shows: "How completely each detector finds environmental claims on the dataset the model was fine-tuned for — and why the rules are only a fallback.",
-    notShows: "Whether any claim is true (detecting is not verifying), or how the model performs on other corpora or languages — the test is in-domain.",
+    caption: `<b>Figure 1.</b> Same test split for both (<code>climatebert/environmental_claims</code>, n = ${det.n_test}, ${Math.round(det.positive_rate * 100)}% claims, threshold ${det.shipped_threshold}).`,
+    shows: "How many claims each detector finds, and why the rules are only a fallback.",
+    notShows: "Whether a claim is true (finding is not checking), or performance on other text or languages.",
     details: techDetails(`<div class="grid-2" style="gap:16px"><div><b>ClimateBERT</b>${cm(t.confusion_matrix)}</div><div><b>Rule-based</b>${cm(rb && rb.confusion_matrix)}</div></div>
       <p style="margin-top:10px">ROC AUC ${fmtNum(det.roc_auc, 4)} · Brier ${fmtNum(det.brier, 4)}. A threshold of ${det.best_threshold} scored macro-F1 ${fmtNum(det.best_threshold_macro_f1, 4)}, but it was selected on the test split, so it is diagnostic only and is not used.</p>
       <p>Source: <code>notebooks/executed/02_claim_detector_evaluation.ipynb</code> → <code>evaluation/experiment_registry.json</code>; rule arm <code>scripts/eval_rule_detector.py</code> → <code>evaluation/rule_baseline_metrics.json</code>.</p>`, "Confusion matrices, calibration and source"),
@@ -73,14 +73,14 @@ async function renderResearch() {
   const exp2 = iv ? experiment({
     n: 2, source: "executed notebook 05", question: "Is the uncertainty honest?",
     headline: `${pct1(iv.marginal_coverage)} <small>coverage at a ${Math.round(iv.nominal * 100)}% target</small>`,
-    sub: `Held out one field at a time (${iv.n_fields} fields, ${iv.n_observations} observed changes), the shipped 90% interval contained the real change ${pct1(iv.marginal_coverage)} of the time — but only ${pct1(iv.conditional_range[0])} at 3–4-year gaps. So each verdict quotes the coverage measured at its own gap.`,
+    sub: `Testing one held-out field at a time (${iv.n_fields} fields, ${iv.n_observations} changes), the 90% range held the real change ${pct1(iv.marginal_coverage)} of the time, but only ${pct1(iv.conditional_range[0])} at 3–4-year gaps.`,
     figure: `<div class="chart-host" data-chart="gap"></div>
       <table class="table table-condensed methods"><thead><tr><th>Interval method</th><th class="num-c">Coverage</th><th class="num-c">Median width</th></tr></thead>
         <tbody>${methods.map(m => `<tr class="${m.is_shipped ? "sel" : ""}"><td>${esc(m.method.replace(/^[ABC]\. /, ""))}${m.is_shipped ? " <span class=\"tag tag-obs\">used</span>" : ""}</td>
           <td class="num-c">${fmtNum(m.marginal_coverage, 4)}</td><td class="num-c">${fmtNum(m.median_width, 3)}</td></tr>`).join("")}</tbody></table>`,
-    caption: `<b>Figure 2.</b> Empirical coverage of the shipped interval by year gap between baseline and outcome (hollow points under-cover by more than 3 points). Table: the two conformal alternatives cover similarly but are about 50% wider, so they were not adopted.`,
-    shows: "How often the interval that drives abstention actually contains the realised change, overall and at each horizon.",
-    notShows: "A guaranteed coverage for any single verdict. Twelve fields can reveal miscalibration, not certify its absence.",
+    caption: `<b>Figure 2.</b> Coverage by gap between baseline and outcome; hollow points fall more than 3 points short. The conformal alternatives cover about the same but are ~50% wider.`,
+    shows: "How often the range that decides abstention really contains the change. Each verdict quotes the figure for its own gap.",
+    notShows: "A guarantee for any single verdict: 12 fields can reveal miscalibration, not rule it out.",
     details: techDetails(`Mean conditional deviation: ${methods.map(m => `${esc(m.method)} ${fmtNum(m.mean_abs_conditional_deviation, 4)}`).join(" · ")}. Protocol: ${esc(iv.protocol)}.<br>Source: <code>notebooks/executed/05_uncertainty_calibration.ipynb</code> → <code>evaluation/experiment_registry.json</code>.`, "Method comparison and source"),
   }) : "";
 
@@ -89,32 +89,25 @@ async function renderResearch() {
   const exp3 = ab ? experiment({
     n: 3, source: "executed notebook 06", question: "What does taking uncertainty seriously change?",
     headline: `${withheld} <small>of ${total} verdicts withheld</small>`,
-    sub: `On ${total} probe claims built from real observed windows, a system that trusts the point estimate answers every one. Letting the 90% interval decide withholds ${withheld} (${pct1(h.prevention_rate)}) — they become abstentions. This is not an accuracy figure: a withheld verdict is not a wrong one.`,
+    sub: `On ${total} test claims from real data, trusting the single estimate answers all of them. Letting the 90% range decide withholds ${withheld} (${pct1(h.prevention_rate)}). Not an accuracy figure: a withheld verdict is not a wrong one.`,
     figure: `<div class="dve" role="img" aria-label="Point-estimate system: ${total} verdicts. With uncertainty: ${total - withheld} verdicts and ${withheld} abstentions.">
         <div class="dve-row"><span class="dve-l">Point estimate only</span><span class="dve-bar"><span class="seg v" style="width:100%">${total} verdicts</span></span></div>
         <div class="dve-row"><span class="dve-l">Interval decides</span><span class="dve-bar"><span class="seg v" style="width:${(total - withheld) / total * 100}%">${total - withheld}</span><span class="seg a" style="width:${withheld / total * 100}%">${withheld} abstain</span></span></div>
       </div>
       <div class="chart-host" data-chart="win" style="margin-top:18px"></div>`,
-    caption: `<b>Figure 3.</b> Top: verdicts vs abstentions without and with the uncertainty layer. Bottom: abstention by claim length — short claims are rarely decidable on thirteen annual observations; 9–12-year claims far more often. Sources also disagreed on ${pct1(h.cross_source_disagreement_rate)} of assessed claims.`,
-    shows: "How often real observations are too uncertain to settle a claim, how that depends on claim length, and how often independent views disagree.",
-    notShows: "Verification accuracy. The probes are built near the observed change (not adversarial), and no adjudicated true/false corpus exists.",
+    caption: `<b>Figure 3.</b> Top: without and with the uncertainty check. Bottom: abstention by claim length; longer claims are decided more often. Sources disagreed on ${pct1(h.cross_source_disagreement_rate)} of assessed claims.`,
+    shows: "How often real observations are too uncertain to settle a claim, and how that depends on claim length.",
+    notShows: "Accuracy: the test claims sit near the observed change, and no true/false claim set exists.",
     details: techDetails(`<table class="table table-condensed"><thead><tr><th>Configuration</th><th>Adds</th></tr></thead><tbody>${Object.values(ab.configurations).map(cf => `<tr><td class="nowrap"><b>${esc(cf.name)}</b></td><td>${esc(cf.adds)}</td></tr>`).join("")}</tbody></table>
       ${F ? `<p style="margin-top:10px">Full system: ${Object.entries(F.synthesis_states).filter(([, v]) => v).map(([k, v]) => `${esc(k.replace(/_/g, " "))} ${pct1(v)}`).join(" · ")}. Sufficiency: ${Object.entries(F.sufficiency_levels).map(([k, v]) => `${esc(LEVEL_LABEL[k] || k)} ${pct1(v)}`).join(" · ")}. Independent instrument available for ${pct1(F.independent_instrument_rate)} of probes (most windows start before Sentinel-5P's 2019 launch).</p>` : ""}
       <p>Source: <code>scripts/run_ablation.py</code> (wrapped by notebook 06, re-executed for this build) → <code>evaluation/ablation_results.json</code>. Every observation is real; probe claims are labelled as probes.</p>`, "Configurations, synthesis states and source"),
   }) : "";
 
   el.innerHTML = `
-    <div class="research-note"><b>Measured components, not end-to-end accuracy.</b> There is no adjudicated corpus of true/false flaring
-      claims, so GreenTruth reports no verification accuracy. Each experiment below says what it shows and what it does not.</div>
+    <div class="research-note"><b>Measured parts, not overall accuracy.</b> No labelled set of true/false flaring claims exists, so no
+      verification accuracy is reported. None of this shows who caused a change, or covers anything beyond gas flaring.</div>
     ${exp1}${exp2}${exp3}
     <section class="panel">
-      <h2 class="panel-title-sm">What these results do not show</h2>
-      <ul class="prose" style="padding-left:18px;margin:10px 0 0">
-        <li>Whether any real corporate claim is true — no end-to-end verification accuracy exists.</li>
-        <li>Who caused a change — the instruments observe locations and atmospheric columns, not operators.</li>
-        <li>That GreenTruth verifies environmental claims in general — only gas flaring has a complete evidence channel.</li>
-        <li>Out-of-domain detection performance — the detector evaluation is in-domain and English-only.</li>
-      </ul>
       ${techDetails(`Registry built from <code>${esc((d.provenance || {}).built_from || "")}</code> by <code>scripts/build_experiment_registry.py</code>. ${esc((d.provenance || {}).integrity_rule || "")}`, "Where every number comes from")}
     </section>`;
 
@@ -160,9 +153,7 @@ async function renderAbout() {
             <g font-size="11" fill="var(--text-2)"><text x="128" y="54">one band → verdict</text><text x="208" y="80">two → borderline</text><text x="426" y="106">three+ → abstain</text></g>
             <text x="10" y="142" font-size="11" fill="var(--muted)">Schematic, not data.</text>
           </svg>
-          <p class="prose">The change axis is split into the possible outcomes for the claim. The 90% interval around the observed change
-            decides: inside one outcome gives a verdict; across two neighbouring outcomes the verdict is borderline; across three or more,
-            GreenTruth abstains. ${cal ? `The interval has no analytical guarantee; its coverage was measured at ${pct1(cal.marginal_coverage)} (nominal ${Math.round(cal.nominal * 100)}%), and every verdict quotes the coverage for its own horizon.` : ""}</p>
+          ${cal ? `<p class="prose">No analytical guarantee: measured coverage ${pct1(cal.marginal_coverage)} (nominal ${Math.round(cal.nominal * 100)}%). Each verdict quotes the figure for its own gap.</p>` : ""}
         </div>
         <div>
           <h3 class="panel-title-sm">Observed is never drawn like projected</h3>
@@ -174,9 +165,8 @@ async function renderAbout() {
             <span class="li">${legendSample("required")}<b>Required</b>&nbsp;— path needed to meet a target</span>
             <span class="li">${legendSample("target")}<b>Target</b>&nbsp;— what was committed</span>
           </div>
-          <p class="prose" style="margin-top:14px">A pledge cannot be true or false yet: it is compared with where the observed trend leads.
-            Two further checks follow every flaring result — the national total (same instrument, so not independent) and the
-            background-corrected methane anomaly from a different satellite. They are shown side by side and never combined into a score.</p>
+          <p class="prose" style="margin-top:14px">Other sources (the national total from the same satellite, and methane from a different
+            one) are shown side by side, never combined into a score.</p>
         </div>
       </div>
     </section>

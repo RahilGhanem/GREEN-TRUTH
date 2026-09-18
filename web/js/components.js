@@ -37,35 +37,22 @@ const list = arr => arr && arr.length ? `<ul>${arr.map(x => `<li>${esc(x)}</li>`
 
 /* ================================================================ reasons */
 
-// One sentence that says why this verdict was reached, in plain language.
-function whySentence(c) {
-  const a = c.analysis, t = c.trajectory, v = c.verdict;
-  if (a && a.interval && a.observed_change != null) {
-    const [lo, hi] = a.interval, pt = a.observed_change, cl = a.claimed_change, L = a.region_labels || {};
-    const iv = `the 90% interval (${fmtPct(lo)} to ${fmtPct(hi)})`;
-    if (v === "abstain") {
-      const r0 = Math.min(a.region_low, a.region_high), r1 = Math.max(a.region_low, a.region_high);
-      return `The observed change (${fmtPct(pt)}) looks decisive, but ${iv} runs from “${L[r0]}” to “${L[r1]}”. These observations cannot tell those outcomes apart.`;
-    }
-    const r0 = Math.min(a.region_low, a.region_high), r1 = Math.max(a.region_low, a.region_high);
-    const within = a.borderline ? `spans “${L[r0]}” and “${L[r1]}” — a borderline result` : `stays inside “${L[r0]}”`;
-    if (v === "supported") return cl != null
-      ? `Observed ${fmtPct(pt)} against a claimed ${fmtPct(cl)}, and ${iv} ${within}.`
-      : `Flaring fell ${fmtPct(pt)}, and ${iv} ${within}.`;
-    if (v === "partially_supported") return `Flaring fell (${fmtPct(pt)}), but by less than the claimed ${fmtPct(cl)}${a.borderline ? "; the interval reaches a neighbouring outcome, so this is borderline" : ""}.`;
-    if (v === "contradicted") return `${cl != null ? `The claim was ${fmtPct(cl)}; ` : ""}the observed change was ${fmtPct(pt)} — ${a.region_point === 3 ? "a rise" : "essentially flat"}${a.borderline ? " (borderline)" : ""}.`;
+// The verdict in one short plain sentence. The step below it shows why.
+function headline(c) {
+  const a = c.analysis || {}, t = c.trajectory, cl = a.claimed_change != null ? fmtPct(a.claimed_change) : null;
+  const yr = t && t.target ? t.target.year : "";
+  switch (c.verdict) {
+    case "abstain": return cl ? `The data can't tell whether the claimed ${cl} happened.` : "The data can't tell which way flaring moved.";
+    case "supported": return `The observations back the claim${cl ? ` of ${cl}` : ""}${a.borderline ? " — only just" : ""}.`;
+    case "partially_supported": return `Flaring fell, but by less than the claimed ${cl}.`;
+    case "contradicted": return `The observations don't show the claimed ${cl || "fall"}.`;
+    case "trajectory_consistent": return `The observed trend reaches the ${yr} target.`;
+    case "trajectory_inconsistent": return `The observed trend doesn't reach the ${yr} target.`;
+    case "trajectory_uncertain": return `The observed trend can't tell whether the ${yr} target will be met.`;
+    case "no_signal": return `Not checkable: there is no satellite data for ${esc(metricName(c))}.`;
+    case "needs_clarification": return "Not checkable: the claim gives no number or period.";
+    default: return "Not checkable on the available observations.";
   }
-  if (isTrajectory(c)) {
-    const p = t.projection_at_target, tg = t.target, span = `${t.observed[0].year}–${t.last_observed.year}`;
-    if (v === "trajectory_consistent") return `Extending the observed ${span} trend, the whole 90% band at ${tg.year} (${fmtNum(p.lower, 2)}–${fmtNum(p.upper, 2)}) reaches the target of ${fmtNum(tg.value, 2)}.`;
-    if (v === "trajectory_inconsistent") return `Extending the observed ${span} trend, even the lower end of the 90% band at ${tg.year} (${fmtNum(p.lower, 2)}) stays above the target of ${fmtNum(tg.value, 2)}.`;
-    return `The 90% band at ${tg.year} (${fmtNum(p.lower, 2)}–${fmtNum(p.upper, 2)}) straddles the target of ${fmtNum(tg.value, 2)}, so the observed trend cannot tell whether it will be met.`;
-  }
-  if (v === "no_signal") return `GreenTruth has no satellite channel for ${esc(metricName(c))}, so this claim is recorded but not checked.`;
-  if (v === "needs_clarification") return "The claim states no quantity or period, so checking it would mean guessing.";
-  if (t && !t.feasible) return esc(t.reason);
-  if (isSetupMessage(c.rationale)) return "Real evidence is currently unavailable for this claim in this deployment.";
-  return esc(c.rationale);
 }
 
 // Short flags that qualify the verdict. Each has a symbol and words, never colour alone.
@@ -89,11 +76,11 @@ function flags(c) {
 
 function keyFacts(c) {
   const a = c.analysis, t = c.trajectory, cl = c.claim, s = c.sufficiency || {};
-  const lvl = [LEVEL_LABEL[s.level] || "—", "evidence sufficiency"];
+  const lvl = [LEVEL_LABEL[s.level] || "—", "see step below"];
   if (isHistorical(c)) return [
     ["Claimed", a.claimed_change != null ? fmtPct(a.claimed_change) : "a fall", "claim", cl.baseline_year ? `from ${cl.baseline_year}` : "no baseline stated"],
     ["Observed", fmtPct(a.observed_change), "obs", `${a.baseline_year} → ${a.comparison_year}`],
-    ["90% interval", a.interval ? `${fmtPct(a.interval[0])} → ${fmtPct(a.interval[1])}` : "—", "", "residual bootstrap"],
+    ["90% range", a.interval ? `${fmtPct(a.interval[0])} → ${fmtPct(a.interval[1])}` : "—", "", "what the data allow"],
     ["Evidence", lvl[0], "", lvl[1]],
   ];
   if (isTrajectory(c)) {
@@ -113,37 +100,32 @@ function keyFacts(c) {
 }
 
 function verdictBanner(c) {
-  const s = vstyle(c.verdict), short = shortLabel(c.verdict_label);
-  const lead = c.verdict === "abstain" ? "The evidence can't decide"
-    : c.is_abstention ? "Not checkable on this evidence" : "Checked against observations";
-  const fl = flags(c);
+  const s = vstyle(c.verdict), fl = flags(c);
   return `<section class="banner-v tone-${s.tone}" aria-label="Verdict">
     <div class="bv-head">
       <div class="bv-sym" aria-hidden="true">${s.sym}</div>
       <div class="bv-titles">
-        <span class="bv-kicker">${esc(c.id)} · ${esc(lead)}</span>
-        <h2 class="bv-label">${esc(short)}</h2>
-        ${short !== c.verdict_label ? `<span class="bv-full">${esc(c.verdict_label)}</span>` : ""}
+        <span class="bv-kicker">Claim ${esc(c.id)}</span>
+        <h2 class="bv-label">${esc(shortLabel(c.verdict_label))}</h2>
       </div>
     </div>
-    <p class="bv-why">${whySentence(c)}</p>
+    <p class="bv-why">${headline(c)}</p>
     <div class="facts">${keyFacts(c).map(([k, v, cls, sub]) => `<div class="fact-c ${cls}">
         <span class="k">${k}</span><span class="v">${v}</span><span class="s">${sub}</span></div>`).join("")}</div>
     ${fl.length ? `<div class="flags">${fl.map(([tone, sym, t]) => `<span class="flag tone-${tone}"><span aria-hidden="true">${sym}</span>${esc(t)}</span>`).join("")}</div>` : ""}
-    <p class="bv-meaning">${esc(c.verdict_meaning)}</p>
   </section>`;
 }
 
 /* ================================================================ steps */
 
-const step = (n, q, body, { id = "" } = {}) => `<section class="story-step" ${id ? `id="${id}"` : ""}>
+// Each step is a question with a short answer beside it, so the titles alone tell the story.
+const step = (n, q, body, ans = null) => `<section class="story-step">
   <div class="ss-n" aria-hidden="true">${n}</div>
-  <div class="ss-body"><h3 class="ss-q">${q}</h3>${body}</div></section>`;
+  <div class="ss-body"><h3 class="ss-q"><span>${q}</span>${ans ? `<span class="ss-a ${ans[0]}">${ans[1]}</span>` : ""}</h3>${body}</div></section>`;
 
 function stepClaim(c, r) {
   const cl = c.claim, f = r && r.field;
   const chips = [
-    `<span class="tag"><b>${esc(cl.claim_type_label)}</b></span>`,
     `<span class="tag">${esc(c.observable || cl.metric || "no metric")}${cl.metric_supported ? "" : " · no channel"}</span>`,
     cl.claimed_change_percent != null ? `<span class="tag tag-claim">claimed <b>${fmtPct(cl.claimed_change_percent / 100)}</b></span>` : "",
     cl.baseline_year ? `<span class="tag">baseline <b>${cl.baseline_year}</b></span>` : "",
@@ -155,14 +137,14 @@ function stepClaim(c, r) {
   const notes = (cl.extraction_notes || []).map(esc).join(" ");
   return `<blockquote class="quote">“${esc(c.text)}”</blockquote>
     <div class="row">${chips}</div>
-    ${c.text !== cl.source_text ? `<p class="hint">Split from: “${esc(cl.source_text)}”</p>` : ""}
+    ${c.text !== cl.source_text ? `<p class="hint">Part of: “${esc(cl.source_text)}”</p>` : ""}
     ${notes ? techDetails(`${notes}<br>Slot coverage ${cl.extract_confidence} — the share of required details stated in the text, not a probability${cl.missing_slots.length ? `; not stated: ${esc(humanSlots(cl.missing_slots))}` : ""}.`, "How the sentence was read") : ""}`;
 }
 
 function stepObserved(c) {
   const a = c.analysis, ev = c.evidence;
-  return `<p class="ss-lead">Flaring at ${esc(ev.field_name)} went from <b>${fmtNum(a.baseline_value, 2)}</b> (${a.baseline_year}) to
-      <b>${fmtNum(a.comparison_value, 2)}</b> bcm/yr (${a.comparison_year}): <b class="obs-txt">${fmtPct(a.observed_change)}</b>.</p>
+  return `<p class="ss-lead"><span class="muted">${a.baseline_year}</span> <b>${fmtNum(a.baseline_value, 2)}</b> →
+      <span class="muted">${a.comparison_year}</span> <b>${fmtNum(a.comparison_value, 2)}</b> bcm/yr flared at ${esc(ev.field_name)}</p>
     <div class="chart-host" data-chart="series"></div>
     ${legend([["observed", "Observed annual volume (VIIRS)"], ...(a.claimed_change != null ? [["claimed", "Change implied by the claim"]] : [])])}
     <p class="src-line">${esc(ev.dataset_name)} · ${ev.years.length} annual observations, ${ev.years[0]}–${ev.years[ev.years.length - 1]} ·
@@ -173,48 +155,34 @@ function stepDecide(c) {
   const a = c.analysis, cal = c.interval_calibration, n = a.region_span + 1;
   const abst = a.interval_spans_decision_regions, border = !!a.borderline;
   const [lo, hi] = a.interval, pt = a.observed_change;
-  const answer = abst ? `<b>No.</b> The 90% interval spans ${n} possible outcomes, so GreenTruth abstains instead of trusting the point estimate.`
-    : border ? `<b>Only just.</b> The interval crosses one boundary, so the verdict follows the point estimate and is marked borderline.`
-    : `<b>Yes.</b> The whole 90% interval stays inside one outcome.`;
+  const answer = abst ? `The 90% range covers ${n} outcomes, so the dot alone can't be trusted.`
+    : border ? "The range touches two outcomes, so the result is borderline."
+    : "The whole 90% range stays inside one outcome.";
   const L = a.region_labels || {};
   const outside = pt < lo || pt > hi;
-  return `<div class="answer tone-${abst ? "abstain" : border ? "partial" : vstyle(c.verdict).tone}">${answer}</div>
+  return `<p class="ss-lead">${answer}</p>
     <div class="chart-host" data-chart="unc"></div>
-    <div class="region-key" aria-label="Possible outcomes">
+    <div class="region-key narrow-only" aria-label="Possible outcomes">
       ${[0, 1, 2, 3].filter(r => a.claimed_change != null || r !== 1).map(r => `<span><span class="sw" style="background:${REGION_FILL[r]}"></span>${esc(L[r] || REGION_SHORT[r])}</span>`).join("")}
     </div>
-    ${legend([["point", "Observed change"], ["interval", "90% interval"], ...(a.claimed_change != null ? [["claimed", "Claimed change"]] : [])])}
-    <p class="src-line">How to read it: the coloured bands are the possible outcomes for this claim. The dark bar is the range
-      the observations are consistent with. When it covers several bands, the data cannot choose between them.
-      ${cal && cal.measured_coverage_at_this_gap != null ? `Measured in testing: intervals over a ${cal.year_gap}-year gap contained the realised change ${pct1(cal.measured_coverage_at_this_gap)} of the time (nominal ${Math.round(cal.nominal * 100)}%).` : ""}</p>
-    ${outside ? `<p class="src-line"><b>Why the dot sits outside the bar:</b> the observed change compares two single years
-      (${a.baseline_year} and ${a.comparison_year}); the interval is built from the scatter around the trend fitted to every year.
-      When one of those two years is unusually high or low, the single-year change can fall outside it.</p>` : ""}
-    ${techDetails(`${esc(a.interval_note)}
+    ${legend([["point", "Observed change"], ["interval", "90% range"], ...(a.claimed_change != null ? [["claimed", "Claimed change"]] : [])])}
+    <p class="src-line">One colour under the bar: decided. Several: the data can't tell.
+      ${outside ? ` The dot compares two single years; the bar comes from the trend over all years, so the dot can sit outside it.` : ""}</p>
+    ${techDetails(`${cal && cal.measured_coverage_at_this_gap != null ? `Measured in testing: intervals over a ${cal.year_gap}-year gap contained the realised change ${pct1(cal.measured_coverage_at_this_gap)} of the time (nominal ${Math.round(cal.nominal * 100)}%).<br>` : ""}${esc(a.interval_note)}
       ${a.decision_margin != null ? `<br>Decision margin ${a.decision_margin} (${esc(a.decision_margin_kind)}).` : ""}<br>There is no “confidence” figure anywhere in GreenTruth.`, "About this interval")}`;
 }
 
 function stepTrajectory(c) {
-  const t = c.trajectory, p = t.projection_at_target, last = t.last_observed, first = t.observed[0];
-  const obsSpan = Math.max(1, last.year - first.year), projSpan = Math.max(1, t.target.year - last.year);
-  return `<p class="ss-lead">A pledge cannot be true or false yet. What can be checked is where the observed path is heading.</p>
-    <div class="timeline" role="img" aria-label="Observed ${first.year} to ${last.year}, projected to ${t.target.year}, target ${t.target.value}">
-      <div class="tl-track">
-        <div class="tl-seg obs" style="flex:${obsSpan} 1 0"><div class="lab">Observed · ${first.year}–${last.year}</div>
-          <div class="det">${fmtNum(last.value, 2)} bcm/yr in ${last.year}</div></div>
-        <div class="tl-mark today" aria-hidden="true"></div>
-        <div class="tl-seg proj" style="flex:${projSpan} 1 0"><div class="lab">Projected · ${last.year + 1}–${t.target.year}</div>
-          <div class="det">${fmtNum(p.value, 2)} in ${t.target.year} (band ${fmtNum(p.lower, 2)}–${fmtNum(p.upper, 2)})</div></div>
-        <div class="tl-mark target" aria-hidden="true"></div>
-        <div class="tl-seg tgt"><div class="lab">Target ${t.target.year}</div><div class="det">${fmtNum(t.target.value, 2)} bcm/yr</div></div>
-      </div>
-    </div>
+  const t = c.trajectory, last = t.last_observed, first = t.observed[0];
+  return `<p class="ss-lead">A pledge can't be checked yet. What can be checked is where the observed trend leads.</p>
     <div class="chart-host" data-chart="traj"></div>
-    ${legend([["observed", "Observed"], ["projected", `Linear trend fitted to ${first.year}–${last.year}, extended`], ["band", "90% band"], ["required", "Path required to meet the target"], ["target", "Target"]])}
-    <p class="src-line">To reach the target, flaring would need to change by ${fmtSigned(t.required_annual_rate, 2)} bcm/yr each year from the
-      last observation; the trend fitted to ${first.year}–${last.year} changes by ${fmtSigned(t.observed_annual_rate, 2)} bcm/yr each year.
-      The projection extends that fitted line, which is why it does not start exactly at the last observed value. ${esc(t.method_caveat)}</p>
-    ${techDetails(`${esc(t.reasoning)}<br>${esc(t.method)}`, "Method")}`;
+    ${legend([["observed", "Observed"], ["projected", "Trend (fitted, extended)"], ["band", "90% band"], ["required", "Path to the target"], ["target", "Target"]])}
+    <div class="rates">
+      <div><span class="k">Needed</span><b>${fmtSigned(t.required_annual_rate, 2)}</b><span class="s">bcm/yr each year</span></div>
+      <div><span class="k">Observed trend</span><b>${fmtSigned(t.observed_annual_rate, 2)}</b><span class="s">bcm/yr each year</span></div>
+    </div>
+    <p class="src-line">A trend, not a forecast.</p>
+    ${techDetails(`${esc(t.reasoning)}<br>The projection extends the line fitted to ${first.year}–${last.year}, which is why it does not start exactly at the last observed value. ${esc(t.method_caveat)}<br>${esc(t.method)}`, "Method")}`;
 }
 
 /* -------------------------------------------------------- cross-checks */
@@ -252,8 +220,8 @@ function nationalCard(c) {
     ${divBars([{ label: r.field_name || "Field", v: r.field_change, color: "var(--c-observed)" },
                { label: `${r.country_name || "Country"}`, v: r.country_change, color: "var(--grey)" }], v => fmtPct(v))}
     <div class="xc-rel tone-${tone}"><span aria-hidden="true">${sym}</span> ${lab}</div>
-    <p class="xc-note">${r.is_conflict ? "Not a contradiction: a field is a small part of a national footprint, so the two can move apart." : "Agreement here is weaker than two independent sensors would be — both series come from VIIRS."}</p>
-    ${techDetails(`${esc(r.detail)}<br>${esc(r.caveat)}`, "Details")}
+    ${r.is_conflict ? `<p class="xc-note">Not a contradiction: one field can move apart from its country.</p>` : ""}
+    ${techDetails(`${esc(r.detail)}<br>${esc(r.caveat)}<br>Both series come from VIIRS, so agreement here is weaker than two independent sensors would be.`, "Details")}
   </div>`;
 }
 
@@ -262,11 +230,14 @@ function methaneCard(c) {
   if (!m) return "";
   if (!m.available) {
     const setup = isSetupMessage(m.detail);
+    // Coverage below the 60% threshold, or a claim window outside the 2019+ methane record.
+    const why = setup ? "Not loaded in this deployment."
+      : m.completeness != null && m.completeness < 0.6 ? `Only ${pct1(m.completeness)} of months usable here.`
+      : "No methane data for these years (Sentinel-5P starts in 2019).";
     return `<div class="xcard muted-card"><div class="xc-k">Methane · independent satellite (Sentinel-5P)</div>
-      <div class="xc-rel tone-none"><span aria-hidden="true">∅</span> Not available for this field or window</div>
-      <p class="xc-note">${setup ? "The methane evidence source is not loaded in this deployment." : esc(m.detail)}</p>
-      <p class="xc-note">The flaring result therefore stands on one instrument, and the conclusion is capped accordingly — nothing is filled in.</p>
-      ${setup ? techDetails(esc(m.detail)) : ""}</div>`;
+      <div class="xc-rel tone-none"><span aria-hidden="true">∅</span> No usable data</div>
+      <p class="xc-note">${why} The result rests on one instrument.</p>
+      ${techDetails(esc(m.detail), "Details")}</div>`;
   }
   const f = m.flaring_change, d = m.anomaly_change_ppb;
   const dir = v => (v == null || Math.abs(v) < 1e-9 ? "flat" : v < 0 ? "down" : "up");
@@ -280,8 +251,8 @@ function methaneCard(c) {
       <div class="pv ${mdir}"><span class="ico" aria-hidden="true">${arrow(mdir === "flat" ? 0 : d)}</span><b>${fmtSigned(d, 1)} ppb</b><span>methane anomaly</span></div>
     </div>
     <div class="xc-rel tone-${tone}"><span aria-hidden="true">${sym}</span> ${lab}</div>
-    <p class="xc-note">Raw column ${fmtSigned(m.methane_change_ppb_raw, 1)} ppb, minus the global background rise of
-      ${fmtSigned(m.background_change_ppb, 1)} ppb = field anomaly ${fmtSigned(d, 1)} ppb (${m.baseline_year}→${m.comparison_year}).</p>
+    <p class="xc-eq">raw ${fmtSigned(m.methane_change_ppb_raw, 1)} − background ${fmtSigned(m.background_change_ppb, 1)} = <b>${fmtSigned(d, 1)} ppb</b>
+      <span class="muted">(${m.baseline_year}→${m.comparison_year})</span></p>
     ${techDetails(`${divBars([{ label: "Raw column change", v: m.methane_change_ppb_raw, color: "var(--grey)" },
         { label: "Background (other fields)", v: m.background_change_ppb, color: "var(--line-strong)" },
         { label: "Field anomaly", v: d, color: m.relationship === "flaring_down_methane_up" ? "var(--orange)" : "var(--c-observed)" }], v => `${fmtSigned(v, 1)} ppb`)}
@@ -295,36 +266,36 @@ function stepSources(c) {
   const tension = m && m.available && m.relationship === "flaring_down_methane_up";
   const body = `<div class="xgrid">${nationalCard(c)}${methaneCard(c)}</div>
     ${tension ? `<div class="tension">
-      <b>Cross-sensor tension.</b> Flaring fell while methane rose faster than the background. Flaring burns methane and venting
-      releases it, so this is the pattern a shift to venting would produce — and also what unrelated regional sources would produce.
-      At ~7 km the two cannot be separated, so it is flagged, not interpreted.
+      <b>⚠ Flaring fell, methane rose.</b> Venting could cause this, and so could other regional sources.
+      At ~7 km they can't be told apart, so it is flagged, not interpreted.
       ${y.possible_explanations && y.possible_explanations.length ? `<details class="more"><summary>Possible explanations (${y.possible_explanations.length})</summary>
         <ul class="explain-list">${y.possible_explanations.map(e => `<li>${esc(e)}</li>`).join("")}</ul></details>` : ""}
     </div>` : ""}
-    <p class="src-line">Sources are shown side by side, never averaged into a score: they measure different quantities at different scales. ${esc(y.not_an_accusation || "")}</p>`;
+    <p class="src-line">Side by side, never averaged. A disagreement is not evidence of wrongdoing.</p>`;
   return body;
 }
 
 /* -------------------------------------------------------- conclusion */
 
 function canCannot(c, r) {
-  const s = c.sufficiency || {}, oa = s.observable_vs_attributable || {}, m = c.methane, t = c.trajectory;
+  const a = c.analysis, m = c.methane, t = c.trajectory, cl = a && a.claimed_change != null ? fmtPct(a.claimed_change) : null;
   const can = [], cannot = [];
-  if (isHistorical(c) && oa.observable) can.push(esc(oa.observable.replace(/ The uncertainty around that figure is too wide to support a conclusion about the claim\.$/, "").replace(/ -(\d)/g, " −$1")));
-  if (isHistorical(c) && c.verdict !== "abstain" && c.analysis.claimed_change != null)
-    can.push(`That this observed change is ${c.verdict === "supported" ? "consistent" : c.verdict === "partially_supported" ? "in the claimed direction but smaller than" : "not consistent"} with the claimed ${fmtPct(c.analysis.claimed_change)}${c.analysis.borderline ? " (borderline)" : ""}.`);
-  if (isTrajectory(c)) can.push(`Where the observed ${t.observed[0].year}–${t.last_observed.year} trend leads by ${t.target.year}: ${fmtNum(t.projection_at_target.value, 2)} bcm/yr (90% band ${fmtNum(t.projection_at_target.lower, 2)}–${fmtNum(t.projection_at_target.upper, 2)}).`);
-  if (m && m.available) can.push(`How regional methane moved around the field relative to the background (${fmtSigned(m.anomaly_change_ppb, 1)} ppb).`);
-  if (!c.claim.metric_supported) can.push(`That the report makes a claim about ${esc(metricName(c))} — it is recorded, not checked.`);
+  if (isHistorical(c)) can.push(`Flaring at ${esc(c.evidence.field_name)} changed ${fmtPct(a.observed_change)} (${a.baseline_year}→${a.comparison_year}).`);
+  if (isHistorical(c) && c.verdict !== "abstain" && cl)
+    can.push(c.verdict === "supported" ? `That fits the claimed ${cl}${a.borderline ? " (borderline)" : ""}.`
+      : c.verdict === "partially_supported" ? `That is a fall, but smaller than the claimed ${cl}.`
+      : `That does not fit the claimed ${cl}.`);
+  if (isTrajectory(c)) can.push(`The trend leads to ${fmtNum(t.projection_at_target.value, 2)} bcm/yr by ${t.target.year} (90% band ${fmtNum(t.projection_at_target.lower, 2)}–${fmtNum(t.projection_at_target.upper, 2)}).`);
+  if (m && m.available) can.push(`Methane near the field moved ${fmtSigned(m.anomaly_change_ppb, 1)} ppb against the background.`);
+  if (!c.claim.metric_supported) can.push(`The report makes a claim about ${esc(metricName(c))}. It is recorded, not checked.`);
 
-  if (c.verdict === "abstain" && c.analysis && c.analysis.claimed_change != null)
-    cannot.push(`Whether the claimed ${fmtPct(c.analysis.claimed_change)} was met — the observations are consistent with outcomes from “${esc((c.analysis.region_labels || {})[Math.min(c.analysis.region_low, c.analysis.region_high)] || "a fall")}” to “${esc((c.analysis.region_labels || {})[Math.max(c.analysis.region_low, c.analysis.region_high)] || "a rise")}”.`);
-  if (isTrajectory(c)) cannot.push("Whether the target will be met — a linear trend cannot anticipate policy changes, shutdowns or new production.");
-  if (c.claim.metric_supported && oa.example_of_the_difference) cannot.push(`${esc(cap(oa.example_of_the_difference.not_supported_by_evidence))} — satellites observe a location, not an operator.`);
-  if (m && m.available && m.relationship === "flaring_down_methane_up") cannot.push("Whether gas was vented — regional methane at ~7 km cannot separate venting from other sources.");
-  if (c.claim.metric_supported && m && !m.available) cannot.push("Independent confirmation from a second sensor.");
-  if (!c.claim.metric_supported) cannot.push(`Anything about ${esc(metricName(c))} from observations — GreenTruth has no channel for it.`);
-  if (!can.length) can.push("Nothing beyond the claim itself — no usable observation reached this claim.");
+  if (c.verdict === "abstain" && cl) cannot.push(`Whether the claimed ${cl} happened.`);
+  if (isTrajectory(c)) cannot.push("Whether the target will be met: a trend can't foresee policy changes or shutdowns.");
+  if (c.claim.metric_supported) cannot.push("Who caused it: satellites see places, not operators.");
+  if (m && m.available && m.relationship === "flaring_down_methane_up") cannot.push("Whether gas was vented.");
+  if (c.claim.metric_supported && m && !m.available) cannot.push("Confirmation from a second, independent sensor.");
+  if (!c.claim.metric_supported) cannot.push(`Anything about ${esc(metricName(c))} from observations.`);
+  if (!can.length) can.push("Nothing beyond the claim itself.");
   return { can, cannot };
 }
 
@@ -404,7 +375,6 @@ function chainBlock(c) {
   const nodes = c.evidence_chain || [];
   return `<details class="trace" data-trace>
     <summary><span class="ico" aria-hidden="true">&#xe90f;</span> Trace this result — ${nodes.length} steps from sentence to verdict</summary>
-    <p class="hint" style="margin:0 0 12px">Select a step to see its source, values, processing and limitations.</p>
     <div class="chain" role="group" aria-label="Evidence chain">
       ${nodes.map((n, i) => {
         const [sym, cls, word] = CHAIN_STATUS[n.status] || CHAIN_STATUS.unavailable;
@@ -445,19 +415,39 @@ function chainDetail(n) {
 
 /* ================================================================ story */
 
+const SHORT_REL = {
+  corroborates: "agrees", same_direction: "same direction", diverges: "opposite",
+  both_down: "also fell", both_up: "also rose", methane_flat: "flat",
+  flaring_down_methane_up: "rose", flaring_up_methane_down: "fell",
+};
+const TRAJ_ANS = {
+  trajectory_consistent: ["tone-ok", "Trend reaches it"],
+  trajectory_inconsistent: ["tone-traj-bad", "Trend falls short"],
+  trajectory_uncertain: ["tone-abstain", "Can't tell"],
+};
+
+function sourcesAnswer(c) {
+  const co = c.corroboration, m = c.methane, parts = [];
+  if (co) parts.push(`National: ${co.available ? SHORT_REL[co.relationship] || esc(co.label) : "n/a"}`);
+  if (m) parts.push(`Methane: ${m.available ? SHORT_REL[m.relationship] || esc(m.label) : "no data"}`);
+  const tension = (m && m.available && m.relationship === "flaring_down_methane_up") || (co && co.available && co.is_conflict);
+  return [tension ? "tone-partial" : "tone-none", parts.join(" · ")];
+}
+
 function evidenceStory(c, r) {
-  const parts = [verdictBanner(c)];
+  const parts = [verdictBanner(c)], a = c.analysis;
   let n = 1;
-  parts.push(step(n++, "What was claimed?", stepClaim(c, r)));
+  parts.push(step(n++, "What was claimed?", stepClaim(c, r), ["tone-none", esc(c.claim.claim_type_label)]));
   if (isHistorical(c)) {
-    parts.push(step(n++, "What did the satellite observe?", stepObserved(c)));
-    if (c.analysis.interval) parts.push(step(n++, "Can the data decide?", stepDecide(c)));
+    parts.push(step(n++, "What did the satellite observe?", stepObserved(c), ["obs", fmtPct(a.observed_change)]));
+    if (a.interval) parts.push(step(n++, "Can the data decide?", stepDecide(c),
+      a.interval_spans_decision_regions ? ["tone-abstain", "No"] : a.borderline ? ["tone-partial", "Only just"] : [`tone-${vstyle(c.verdict).tone}`, "Yes"]));
   } else if (isTrajectory(c)) {
-    parts.push(step(n++, "Where is the observed path heading?", stepTrajectory(c)));
+    parts.push(step(n++, "Where is the observed trend heading?", stepTrajectory(c), TRAJ_ANS[c.verdict] || null));
   } else {
-    parts.push(step(n++, "Can it be checked?", limitationPanel(c, r)));
+    parts.push(step(n++, "Can it be checked?", limitationPanel(c, r), ["tone-none", "No"]));
   }
-  if (c.claim.metric_supported && (c.corroboration || c.methane)) parts.push(step(n++, "Do other sources agree?", stepSources(c)));
+  if (c.claim.metric_supported && (c.corroboration || c.methane)) parts.push(step(n++, "Do other sources agree?", stepSources(c), sourcesAnswer(c)));
   parts.push(step(n++, "What can — and cannot — be concluded?", stepConclude(c, r)));
   parts.push(chainBlock(c));
   return `<article class="story">${parts.join("")}</article>`;

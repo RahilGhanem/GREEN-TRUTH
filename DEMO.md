@@ -23,9 +23,10 @@ Every result in the app is told as the same short **evidence story**:
 4. *Do other sources agree?*
 5. *What can — and cannot — be concluded?*
 
-Above the story is a verdict banner with one plain sentence of reasoning. Below it is an
-optional trace of every step from the sentence to the verdict. A pledge replaces steps 2–4
-with *Where is the observed path heading?*
+Each question has a short answer beside it (for example *Can the data decide?* → **No**), so
+the titles alone tell the story. Above them is a verdict banner with one plain sentence;
+below them is an optional trace of every step from the sentence to the verdict. A pledge
+replaces steps 2–4 with *Where is the observed trend heading?*
 
 ---
 
@@ -53,12 +54,13 @@ with *Where is the observed path heading?*
 - **Click:** **Explore Demo**. The *Guided demo* opens and runs case 1 (Niger Delta) at once.
 - **Judge sees:** three case cards, and a pipeline stepper (Detect → Decompose → Resolve →
   Observe → Compare → Uncertainty → Evidence → Verdict) showing what each step produced.
-  Below that is a *What to look for* note, then the banner: **SUPPORTED**, *Claimed −40% · Observed
-  −42% (2012 → 2023) · 90% interval −44% → −13% · Evidence: Partially sufficient*, flagged
-  *Borderline* and *No independent sensor here*.
+  Below that is a *What to look for* note, then the banner: **SUPPORTED**, *"The observations
+  back the claim of −40% — only just."*, with *Claimed −40% · Observed −42% (2012 → 2023) ·
+  90% range −44% → −13% · Evidence: Partially sufficient*, flagged *Borderline* and *No
+  independent sensor here*.
 - **Scroll to** *What did the satellite observe?*: the real 2012–2024 series, 6.72 → 3.87
   bcm/yr, with the claimed path drawn dashed next to it.
-- **Scroll to** *Can the data decide?*: **"Only just."** The interval stays on the "fell" side
+- **Scroll to** *Can the data decide?* → **Only just**. The range stays on the "fell" side
   but touches two outcomes (met the claim / fell by less), so the verdict is stated and
   marked borderline.
 - **Say:** "The claim said 40%; the satellite record shows 42%. The whole interval still says
@@ -82,13 +84,12 @@ with *Where is the observed path heading?*
 ## 02:10 — Case 2: uncertainty causes abstention
 
 - **Click:** **Next: Evidence cannot decide, and instruments disagree →** (Permian Basin).
-- **Judge sees:** the banner *"The evidence can't decide"* → **ABSTAIN**, with the reason in
-  one sentence: the observed change (−29%) looks decisive, but the 90% interval (−25% to
-  +127%) runs from "fell, but by less than claimed" to "rose".
-- **Scroll to** *Can the data decide?*: **"No."** The dark interval bar crosses three coloured
-  outcome bands. A note explains why the −29% dot sits just outside the bar: the observed
-  change compares two single years, while the interval is built from the scatter around the
-  trend fitted to all years.
+- **Judge sees:** **ABSTAIN**, *"The data can't tell whether the claimed −25% happened."*, with
+  the 90% range −25% → +127% beside the −29% observed.
+- **Scroll to** *Can the data decide?* → **No**: *"The 90% range covers 3 outcomes, so the dot
+  alone can't be trusted."* The dark bar runs from "fell, by less" into "rose". A one-line
+  note explains why the −29% dot sits just outside the bar: it compares two single years,
+  while the bar comes from the trend over all years.
 - **Say:** "A point-estimate system would say *supported*: 29% is better than the 25%
   claimed. But the interval runs from a small fall to more than doubling. The data can't
   tell those apart, so GreenTruth doesn't force a verdict."
@@ -97,14 +98,15 @@ with *Where is the observed path heading?*
 
 ## 03:10 — Other sources disagree
 
-- **Scroll to** *Do other sources agree?*
+- **Scroll to** *Do other sources agree?* → **National: agrees · Methane: rose**.
 - **Judge sees:** two cards side by side:
   - **National total**, from the same instrument and labelled as such: field −29% vs
     United States −41%, *moves with the national trend*.
   - **Methane**, from an independent satellite: flaring ↓ −29% vs methane anomaly
-    ↑ +12.1 ppb. The raw column rose +52.5 ppb, minus a background rise of +40.4 ppb.
+    ↑ +12.1 ppb (raw +52.5 − background +40.4).
 
-  Below the cards is a **cross-sensor tension** callout with its *possible explanations*.
+  Below the cards: *"⚠ Flaring fell, methane rose. Venting could cause this, and so could
+  other regional sources"*, with its *possible explanations*.
 - **Say:** "A different satellite. Methane rises everywhere with the global trend, so we
   subtract the background. What's left rose while flaring fell. Venting would produce that
   pattern, but so would unrelated regional sources. At 7 km we can't tell which, so it's
@@ -127,11 +129,11 @@ with *Where is the observed path heading?*
 - **Judge sees:** *This text was split into 4 separate claims*: a past result (**Abstain**),
   the 2030 pledge (**Not on observed trajectory**, shown), and two clauses about methane and
   net zero (**No signal to check**). Each can be opened in place.
-- In *Where is the observed path heading?*:
+- In *Where is the observed trend heading?* → **Trend falls short**:
   - the observed series is drawn solid, and the linear trend fitted to 2012–2024 is extended
     to 2030 as a dashed line with a hatched 90% band;
   - projected 2030 value: 1.94 bcm/yr (band 0.21–3.84), against a target of 0;
-  - the required path is dotted: −0.38 bcm/yr each year, against an observed trend of −0.13.
+  - two figures below the chart: **Needed −0.38** vs **Observed trend −0.13** bcm/yr each year.
 - **Say:** "A pledge can't be true or false yet. What we can check is where the observed path
   is heading. Even the low end of the band stays above zero. That's a statement about the
   trend, not a prediction of compliance."
@@ -160,7 +162,7 @@ with *Where is the observed path heading?*
 
 - **Workspace:** paste any text, pick a field, or load a prepared case. *More input options*
   loads the multi-claim demo report or a `.txt` / `.md` file. A report with several claims shows one
-  tab per claim, with a summary line: how many claims got a verdict and how many did not.
+  tab per claim, each showing its verdict.
 - **Field map:** the 12 monitored fields at their real coordinates, sized by the volume
   observed in the selected year (use the year slider or *Play years*). Selecting a field shows
   its real trend and which evidence exists for it: VIIRS ✓, national series ⚠ (same

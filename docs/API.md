@@ -147,7 +147,7 @@ map works offline. See `data/geo/README.md`.
 ```json
 {"text": "We reduced routine gas flaring by 40% …", "is_demo": true,
  "suggested_field": "Bakken",
- "note": "Demo claim written to exercise the pipeline. It is not a quotation from any real company report. The evidence it is checked against is real."}
+ "note": "Written for the demo, not quoted from any company. The data it is checked against is real."}
 ```
 
 ---

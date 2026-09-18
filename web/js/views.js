@@ -4,14 +4,14 @@
    consistent way of presenting evidence everywhere. */
 
 const PIPELINE_STEPS = [
-  ["Detect", "Find the sentences that make environmental claims — ClimateBERT, or transparent rules as a reported fallback."],
-  ["Decompose", "Split compound sentences, so a past result and a future pledge are checked separately."],
-  ["Resolve", "Match the claim to a monitored field and its real coordinates. Ambiguity is shown, not hidden."],
-  ["Observe", "Retrieve the field's real annual flaring series (World Bank / VIIRS)."],
-  ["Compare", "Measure the observed change — or, for a pledge, project the observed path."],
-  ["Uncertainty", "A 90% interval decides: if it spans different outcomes, GreenTruth abstains."],
-  ["Evidence", "Cross-check with the national total and an independent satellite, then audit what the evidence can support."],
-  ["Verdict", "A consistency statement about observations — never an accusation."],
+  ["Detect", "Find claim sentences (ClimateBERT, or rules as a labelled fallback)."],
+  ["Decompose", "Split past results from future pledges."],
+  ["Resolve", "Match the claim to a monitored field."],
+  ["Observe", "Load its real flaring series (VIIRS)."],
+  ["Compare", "Measure the change, or project a pledge."],
+  ["Uncertainty", "Too uncertain to decide? Abstain."],
+  ["Evidence", "Cross-check other sources; rate the evidence."],
+  ["Verdict", "About observations, never an accusation."],
 ];
 
 /* ================================================================ workspace */
@@ -73,10 +73,8 @@ function renderError(msg, retry) {
 /* A one-line summary of the report plus a tab per atomic claim. */
 function reportBar(r) {
   const s = r.summary, d = r.detector || {}, f = r.field;
-  const decided = s.total - s.abstentions;
   return `<div class="report-bar">
-    <p class="rb-meta"><b>${s.total}</b> checkable claim${s.total === 1 ? "" : "s"} ·
-      <b>${decided}</b> with a verdict · <b>${s.abstentions}</b> without one
+    <p class="rb-meta"><b>${s.total}</b> claim${s.total === 1 ? "" : "s"} found
       ${f ? ` · field <b>${esc(f.name)}</b>${r.field_ambiguous ? " (ambiguous)" : ""}` : " · no field resolved"}
       · detector <b>${d.detector === "climatebert" ? "ClimateBERT" : "rule-based"}</b>${d.fallback ? `
       <button class="linklike" type="button" data-act="det-why" aria-expanded="false">why?</button>` : ""}</p>
@@ -281,7 +279,7 @@ function renderDemoResult(i, r, ms, sel = null) {
   host.innerHTML = `
     <div class="panel demo-head">
       ${stepperHTML(stepOutputs(r, idx), false)}
-      <p class="timing">The whole pipeline ran in one server request (${Math.round(ms)} ms); the steps are revealed in order for readability.</p>
+      <p class="timing">Ran live in ${Math.round(ms)} ms.</p>
       <div class="lookfor"><b>What to look for.</b> ${esc(cs.what_to_look_for)}
         <span class="muted">${esc(cs.note || (state.cases ? state.cases.note : ""))}</span></div>
       ${split}

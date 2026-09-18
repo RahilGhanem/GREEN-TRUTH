@@ -100,8 +100,9 @@ button between them), **Workspace** (paste any report, pick a field), **Field ma
 **Research** (the three measured experiments) and **Method & data**.
 
 Every checked claim is shown as the same short evidence story. It opens with a verdict
-banner (one plain sentence of reasoning, the claimed / observed / interval / sufficiency
-figures, and any warning flags). Then come five questions:
+banner (one plain sentence, the claimed / observed / 90% range / evidence figures, and any
+warning flags). Then come five questions, each with a short answer beside it, so the titles
+alone tell the story:
 
 1. *What was claimed?*
 2. *What did the satellite observe?*
@@ -109,7 +110,7 @@ figures, and any warning flags). Then come five questions:
 4. *Do other sources agree?*
 5. *What can — and cannot — be concluded?*
 
-For a pledge, *Where is the observed path heading?* replaces steps 2–4. Raw metadata stays
+For a pledge, *Where is the observed trend heading?* replaces steps 2–4. Raw metadata stays
 behind *Technical details* toggles. The 13-step trace from sentence to verdict is optional
 and collapsed by default. Every view works at phone width.
 

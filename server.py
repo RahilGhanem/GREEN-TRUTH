@@ -61,9 +61,8 @@ DEMO_TEXT = (
     "eliminate routine flaring by 2030. We also cut methane emissions by 30% "
     "and are committed to reaching net zero by 2050."
 )
-DEMO_NOTE = ("Demo claim written to exercise the pipeline. It is not a quotation "
-             "from any real company report. The evidence it is checked against "
-             "is real.")
+DEMO_NOTE = ("Written for the demo, not quoted from any company. The data it is "
+             "checked against is real.")
 
 # Two contrasting cases, both against REAL observations. The claim wording is
 # written to exercise the pipeline and is not quoted from any company; the fields,
@@ -78,13 +77,10 @@ DEMO_CASES = [
         "field": "Niger Delta",
         "text": ("We reduced routine gas flaring by 40% by 2023 from 2012 levels."),
         "what_to_look_for": (
-            "Observed −42% against a claimed −40%. The 90% interval (−44% to "
-            "−13%) stays on the side of a fall, touching two neighbouring "
-            "outcomes (met the claim, or fell by less), so the verdict is stated "
-            "and marked borderline rather than abstained. Sources agree. Note the "
-            "ceiling: Sentinel-5P retrieves usable methane for only 24% of months "
-            "here, so there is no independent instrument and the evidence is "
-            "rated partially sufficient, not sufficient."),
+            "−42% observed against −40% claimed. The 90% range (−44% to −13%) "
+            "touches two outcomes, so the verdict is Supported but borderline. "
+            "Methane data is too sparse here (24% of months), so the evidence is "
+            "only partially sufficient."),
         "expected": "SUPPORTED",
     },
     {
@@ -93,13 +89,9 @@ DEMO_CASES = [
         "field": "Permian Basin",
         "text": ("We reduced routine gas flaring by 25% from 2019 levels."),
         "what_to_look_for": (
-            "The point estimate (−29%) looks like success, but the 90% interval "
-            "runs −25% to +127% and spans materially different outcomes, so the "
-            "system abstains. Separately, the independent methane instrument shows "
-            "a background-referenced anomaly of +12.1 ppb — rising while flaring "
-            "falls. A shift from flaring to venting would produce that pattern, "
-            "but so would unrelated regional sources; at ~7 km they cannot be "
-            "separated. Flagged as cross-sensor tension, never as wrongdoing."),
+            "−29% looks like success, but the 90% range runs from −25% to +127%, "
+            "so GreenTruth abstains. Methane rose +12.1 ppb above the background "
+            "while flaring fell: flagged as tension, not as wrongdoing."),
         "expected": "ABSTAIN",
     },
 ]
