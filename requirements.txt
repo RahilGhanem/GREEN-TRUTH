@@ -1,0 +1,29 @@
+# GreenTruth runs on the Python standard library alone.
+#
+#     python3 server.py
+#
+# There is nothing to install for the application, the API, the charts, the map,
+# the uncertainty analysis or the evidence chain. That is deliberate: a live demo
+# should not be able to fail because of a missing wheel or a slow network.
+#
+# ---------------------------------------------------------------------------
+# OPTIONAL — only for the upgrade paths described in the README.
+# ---------------------------------------------------------------------------
+#
+# 1. ClimateBERT claim detection (instead of the rule-based fallback).
+#    Without these the app runs and REPORTS that it fell back to rules.
+#       transformers>=4.45
+#       torch>=2.0
+#
+# 2. Notebooks only (they run in Colab, which already has them):
+#       pandas
+#       numpy
+#       scikit-learn
+#       matplotlib
+#       openpyxl          # reading the World Bank .xlsx releases
+#       datasets          # the environmental_claims dataset
+#       huggingface_hub   # publishing the model
+#       nbclient ipykernel  # running notebooks 04, 06, 07 locally
+#
+# 3. Optional Sentinel-5P methane cross-check (notebook 03 Part B):
+#       earthengine-api

@@ -1,0 +1,49 @@
+# ---------------------------------------------------------------- Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# ---------------------------------------------------------- environments
+.venv/
+venv/
+env/
+.env
+.env.*
+!.env.example
+
+# ------------------------------------------------------------ notebooks
+.ipynb_checkpoints/
+
+# ---------------------------------------------------------- IDE / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ------------------------------------------------------ real data (licence)
+# The observation CSVs are derived from external releases with their own terms.
+# They are produced by notebooks/03 and live only in a working copy.
+data/real/*.csv
+notebooks/executed/results/*.csv
+
+# -------------------------------------------------- local, never committed
+# local model export from notebook 01 (the model is published on the Hub instead)
+greentruth-claim-detector/
+# raw World Bank downloads
+viirs_raw/
+*.log
+*.tmp
+screenshots-dev/
+playwright-report/
+test-results/
+
+# Local design reference only (Notika admin template by Colorlib, MIT).
+# The interface follows its design language; the one asset used from it, the
+# notika-icon font, is vendored in web/fonts/ with attribution.
+notika-master/
+
+# data/geo/world_110m.json IS committed (public domain, small).

@@ -1,0 +1,19 @@
+{
+  "_note": "Approximate PUBLIC centroids of major international oil/gas flaring regions, used to group real flare detections by field/basin. Coordinates are approximate public locations; the analysis snaps REAL flare detections (from the World Bank / VIIRS individual-flare-location dataset) to the nearest field within its radius. No claim is made here about any operator. Verdicts must be worded as consistency between observations and a stated public commitment.",
+  "claim_source": "Public flaring commitments come from the World Bank 'Zero Routine Flaring by 2030' (ZRF) initiative: https://www.worldbank.org/en/programs/gasflaringreduction/zero-routine-flaring-by-2030 . Use the official endorser list for who has committed; do not assume membership.",
+  "unit": "billion m3 flared per year",
+  "fields": {
+    "us_permian":        {"name": "Permian Basin", "country": "United States", "lat": 31.9,  "lon": -102.1, "match_radius_km": 200},
+    "us_bakken":         {"name": "Bakken",         "country": "United States", "lat": 47.8,  "lon": -103.3, "match_radius_km": 150},
+    "russia_priobskoye": {"name": "Priobskoye / West Siberia", "country": "Russia", "lat": 60.9, "lon": 69.6, "match_radius_km": 150},
+    "iraq_rumaila":      {"name": "Rumaila / Basra", "country": "Iraq",    "lat": 30.05, "lon": 47.3,  "match_radius_km": 90},
+    "iran_south_pars":   {"name": "South Pars / Asaluyeh", "country": "Iran", "lat": 27.5, "lon": 52.6, "match_radius_km": 90},
+    "algeria_hassi_messaoud": {"name": "Hassi Messaoud", "country": "Algeria", "lat": 31.67, "lon": 6.07, "match_radius_km": 60},
+    "algeria_hassi_rmel":     {"name": "Hassi R'Mel", "country": "Algeria", "lat": 32.93, "lon": 3.28, "match_radius_km": 60},
+    "nigeria_niger_delta": {"name": "Niger Delta", "country": "Nigeria", "lat": 5.3, "lon": 6.0, "match_radius_km": 180},
+    "venezuela_maracaibo": {"name": "Lake Maracaibo", "country": "Venezuela", "lat": 9.8, "lon": -71.5, "match_radius_km": 150},
+    "libya_sirte":       {"name": "Sirte Basin", "country": "Libya", "lat": 28.8, "lon": 19.6, "match_radius_km": 180},
+    "kazakhstan_tengiz": {"name": "Tengiz", "country": "Kazakhstan", "lat": 46.1, "lon": 53.5, "match_radius_km": 80},
+    "mexico_cantarell":  {"name": "Cantarell / Campeche", "country": "Mexico", "lat": 19.4, "lon": -92.2, "match_radius_km": 120}
+  }
+}

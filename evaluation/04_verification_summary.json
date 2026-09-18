@@ -1,0 +1,25 @@
+{
+  "experiment": "04_environmental_verification",
+  "n_fields": 12,
+  "verdicts": {
+    "abstain": 10,
+    "partially_supported": 1,
+    "supported": 1
+  },
+  "sufficiency_levels": {
+    "INSUFFICIENT": 10,
+    "PARTIALLY_SUFFICIENT": 2
+  },
+  "synthesis_states": {
+    "cross_scale_divergence": 7,
+    "partial_agreement": 4,
+    "agreement": 1
+  },
+  "methane_available": 0,
+  "integrity": {
+    "ground_truth_available": false,
+    "accuracy_reported": false,
+    "why": "No adjudicated true/false corpus exists for these claims. This experiment records what the evidence can support, not whether the claims are true.",
+    "probe_claims": "Claims are constructed from real observed windows to exercise the pipeline. All observations are real."
+  }
+}

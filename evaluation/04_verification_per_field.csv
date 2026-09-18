@@ -1,0 +1,13 @@
+field,window,claimed,observed,interval,verdict,sufficiency,synthesis,methane
+Permian Basin,2012-2024,300%,+298%,"[+12%, +611%]",abstain,INSUFFICIENT,partial_agreement,no
+Bakken,2012-2024,-45%,-45%,"[-76%, +38%]",abstain,INSUFFICIENT,cross_scale_divergence,no
+Priobskoye / West Siberia,2012-2024,-30%,-31%,"[-52%, +31%]",abstain,INSUFFICIENT,cross_scale_divergence,no
+Rumaila / Basra,2012-2024,-15%,-17%,"[-23%, +12%]",abstain,INSUFFICIENT,cross_scale_divergence,no
+South Pars / Asaluyeh,2012-2024,185%,+183%,"[+77%, +456%]",abstain,INSUFFICIENT,partial_agreement,no
+Hassi Messaoud,2012-2024,-5%,-7%,"[-57%, +5%]",abstain,INSUFFICIENT,cross_scale_divergence,no
+Hassi R'Mel,2012-2024,-10%,-9%,"[-9%, +11%]",abstain,INSUFFICIENT,cross_scale_divergence,no
+Niger Delta,2012-2024,-30%,-30%,"[-47%, -16%]",partially_supported,PARTIALLY_SUFFICIENT,agreement,no
+Lake Maracaibo,2012-2024,-20%,-21%,"[-40%, +31%]",abstain,INSUFFICIENT,cross_scale_divergence,no
+Sirte Basin,2012-2024,40%,+39%,"[-4150%, +561%]",abstain,INSUFFICIENT,partial_agreement,no
+Tengiz,2012-2024,-35%,-36%,"[-81%, -24%]",supported,PARTIALLY_SUFFICIENT,partial_agreement,no
+Cantarell / Campeche,2012-2024,-5%,-5%,"[-41%, +12%]",abstain,INSUFFICIENT,cross_scale_divergence,no

@@ -1,0 +1,121 @@
+{
+  "case1": {
+    "title": "Evidence supports the claim",
+    "field": "Niger Delta",
+    "claim_text": "We reduced routine gas flaring by 40% by 2023 from 2012 levels.",
+    "verdict": "supported",
+    "verdict_label": "Supported",
+    "analysis": {
+      "baseline_year": 2012,
+      "comparison_year": 2023,
+      "baseline_value": 6.719632,
+      "comparison_value": 3.874657,
+      "observed_change": -0.423383,
+      "claimed_change": -0.4,
+      "interval": [
+        -0.439993,
+        -0.130031
+      ],
+      "interval_kind": "residual_bootstrap_90",
+      "interval_note": "Residual bootstrap around the fitted annual trend. It describes scatter around that trend and carries no analytical coverage guarantee, so it is not a calibrated confidence interval. Its empirical coverage was measured separately and is reported with each verdict.",
+      "flat_band": 0.05,
+      "assumptions": [],
+      "summary": "Observed 42% lower in 2023 than 2012 (6.719632 \u2192 3.874657).",
+      "interval_summary": "90% interval -44% to -13%",
+      "region_low": 0,
+      "region_high": 1,
+      "region_point": 0,
+      "region_span": 1,
+      "region_labels": {
+        "0": "meets or beats the claimed reduction",
+        "1": "fell, but by less than claimed",
+        "2": "essentially flat",
+        "3": "rose"
+      },
+      "interval_spans_decision_regions": false,
+      "decision_margin": 0.151,
+      "decision_margin_kind": "heuristic: distance from the nearest decision boundary, in interval half-widths. Not a probability and not calibrated.",
+      "borderline": true
+    },
+    "sufficiency_level": "PARTIALLY_SUFFICIENT",
+    "evidence_ceiling": "Single-instrument consistency only: the result is not corroborated by a different sensor.",
+    "synthesis_state": "agreement",
+    "methane_relationship": "unavailable",
+    "interval_calibration": {
+      "year_gap": 11,
+      "nominal": 0.9,
+      "measured_coverage_at_this_gap": 0.9583,
+      "measured_marginal_coverage": 0.9071,
+      "conditional_range": [
+        0.8333,
+        1.0
+      ],
+      "n_fields": 12,
+      "n_observations": 936,
+      "protocol": "leave-one-field-out",
+      "source": "notebooks/05_uncertainty_calibration.ipynb",
+      "note": "Empirical coverage measured leave-one-field-out. The interval is not analytically calibrated; this is how often it actually contained the realised change in testing.",
+      "under_covers_here": false
+    }
+  },
+  "case2": {
+    "title": "Evidence cannot decide; instruments disagree",
+    "field": "Permian Basin",
+    "claim_text": "We reduced routine gas flaring by 25% from 2019 levels.",
+    "verdict": "abstain",
+    "verdict_label": "Abstain / uncertain",
+    "analysis": {
+      "baseline_year": 2019,
+      "comparison_year": 2024,
+      "baseline_value": 7.646668,
+      "comparison_value": 5.43019,
+      "observed_change": -0.289862,
+      "claimed_change": -0.25,
+      "interval": [
+        -0.248276,
+        1.266885
+      ],
+      "interval_kind": "residual_bootstrap_90",
+      "interval_note": "Residual bootstrap around the fitted annual trend. It describes scatter around that trend and carries no analytical coverage guarantee, so it is not a calibrated confidence interval. Its empirical coverage was measured separately and is reported with each verdict.",
+      "flat_band": 0.05,
+      "assumptions": [
+        "outcome year taken as 2024 (latest observation)"
+      ],
+      "summary": "Observed 29% lower in 2024 than 2019 (7.646668 \u2192 5.43019).",
+      "interval_summary": "90% interval -25% to 127%",
+      "region_low": 1,
+      "region_high": 3,
+      "region_point": 0,
+      "region_span": 2,
+      "region_labels": {
+        "0": "meets or beats the claimed reduction",
+        "1": "fell, but by less than claimed",
+        "2": "essentially flat",
+        "3": "rose"
+      },
+      "interval_spans_decision_regions": true,
+      "decision_margin": 0.053,
+      "decision_margin_kind": "heuristic: distance from the nearest decision boundary, in interval half-widths. Not a probability and not calibrated."
+    },
+    "sufficiency_level": "INSUFFICIENT",
+    "evidence_ceiling": "No conclusion can be drawn from the available observations.",
+    "synthesis_state": "cross_sensor_tension",
+    "methane_relationship": "flaring_down_methane_up",
+    "interval_calibration": {
+      "year_gap": 5,
+      "nominal": 0.9,
+      "measured_coverage_at_this_gap": 0.9375,
+      "measured_marginal_coverage": 0.9071,
+      "conditional_range": [
+        0.8333,
+        1.0
+      ],
+      "n_fields": 12,
+      "n_observations": 936,
+      "protocol": "leave-one-field-out",
+      "source": "notebooks/05_uncertainty_calibration.ipynb",
+      "note": "Empirical coverage measured leave-one-field-out. The interval is not analytically calibrated; this is how often it actually contained the realised change in testing.",
+      "under_covers_here": false
+    }
+  }
+}

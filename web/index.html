@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GreenTruth — Ground environmental claims in satellite evidence</title>
+<meta name="description" content="GreenTruth checks environmental claims against real Earth-observation evidence, with explicit uncertainty, evidence sufficiency and abstention when the evidence cannot decide.">
+<link rel="preload" href="/fonts/roboto-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/style.css">
+<link rel="icon" type="image/png" href="/icons/logo-64.png">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<!-- ================================================================ LANDING -->
+<section class="landing" id="landing" aria-label="GreenTruth introduction">
+  <video class="landing-video" id="heroVideo" autoplay muted loop playsinline
+         preload="auto" poster="/hero-poster.jpg" aria-hidden="true">
+    <source src="/hero-bg.mp4" type="video/mp4">
+  </video>
+  <div class="landing-scrim" aria-hidden="true"></div>
+
+  <div class="landing-top">
+    <div class="landing-brand">
+      <img src="/icons/logo-64.png" alt="" width="40" height="40">
+      <span>Green<span class="wm-accent" style="color:var(--green)">Truth</span></span>
+    </div>
+    <button class="btn-link-light" type="button" data-enter="workspace">Enter workspace</button>
+  </div>
+
+  <div class="landing-hero">
+    <img class="landing-logo" src="/icons/logo-384.png" alt="GreenTruth logo" width="112" height="112">
+    <h1 class="wordmark">Green<span class="wm-accent">Truth</span></h1>
+    <p class="tagline">Ground environmental claims in satellite evidence.</p>
+    <p class="principle">When the evidence can't tell, GreenTruth says so.</p>
+    <div class="cta-row">
+      <button class="btn btn-primary btn-lg" type="button" data-enter="workspace">Enter Workspace</button>
+      <button class="btn btn-hero-ghost btn-lg" type="button" id="watchDemoBtn">Explore Demo</button>
+    </div>
+
+    <ol class="flow" aria-label="How GreenTruth reads a claim">
+      <li><span class="dot"></span><span class="lbl">CLAIM</span><span class="sub">a report or a pledge</span></li>
+      <li><span class="dot"></span><span class="lbl">EARTH OBSERVATION</span><span class="sub">real satellite series</span></li>
+      <li><span class="dot"></span><span class="lbl">UNCERTAINTY</span><span class="sub">can the data tell outcomes apart?</span></li>
+      <li><span class="dot"></span><span class="lbl">EVIDENCE</span><span class="sub">what it can and cannot support</span></li>
+      <li><span class="dot"></span><span class="lbl">VERDICT</span><span class="sub">cautious — or abstain</span></li>
+    </ol>
+  </div>
+
+  <div class="landing-facts" id="landingFacts" aria-live="polite">
+    <span class="fact"><span class="pip warn"></span>Connecting to the evidence server…</span>
+  </div>
+</section>
+
+<!-- ==================================================================== APP -->
+<div class="app" id="app" hidden>
+  <header class="topbar">
+    <div class="topbar-in">
+      <button class="brand" type="button" id="homeBtn" aria-label="GreenTruth — back to the introduction">
+        <img src="/icons/logo-64.png" alt="" width="36" height="36">
+        <span>
+          <span class="brand-name">Green<span class="wm-accent">Truth</span></span>
+          <span class="brand-sub">Environmental evidence intelligence</span>
+        </span>
+      </button>
+      <div class="top-status">
+        <span class="chip-dark" id="dataChip"><span class="pip warn"></span>Loading evidence…</span>
+        <span class="chip-dark" id="detChip" tabindex="0"><span class="pip warn"></span>Detector…</span>
+        <button class="icon-btn-dark" id="themeBtn" type="button" aria-pressed="false">◐ Dark theme</button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="menubar" aria-label="Main">
+    <div class="menu" id="menu">
+      <button class="menu-item" type="button" data-view="demo"><span class="ico" aria-hidden="true">&#xe902;</span>Guided demo</button>
+      <button class="menu-item" type="button" data-view="workspace"><span class="ico" aria-hidden="true">&#xe90e;</span>Workspace</button>
+      <button class="menu-item" type="button" data-view="map"><span class="ico" aria-hidden="true">&#xe918;</span>Field map</button>
+      <button class="menu-item" type="button" data-view="research"><span class="ico" aria-hidden="true">&#xe935;</span>Research</button>
+      <button class="menu-item" type="button" data-view="about"><span class="ico" aria-hidden="true">&#xe92a;</span>Method &amp; data</button>
+    </div>
+  </nav>
+
+  <main class="main" id="main" tabindex="-1">
+    <div class="container">
+
+      <!-- ================================================== DEMO =========== -->
+      <section class="view" id="view-demo" aria-labelledby="h-demo" hidden>
+        <header class="page-head">
+          <h1 id="h-demo">Guided demo</h1>
+          <p>Three cases, one pipeline. Each runs live on real satellite observations — one reaches a verdict,
+            one abstains and explains why, one is a 2030 pledge.</p>
+        </header>
+        <div class="chapters" id="demoCases"><div class="skel" style="height:86px"></div></div>
+        <div id="demoRun" class="demo-run"></div>
+      </section>
+
+      <!-- ============================================== WORKSPACE ========= -->
+      <section class="view" id="view-workspace" aria-labelledby="h-workspace" hidden>
+        <header class="page-head">
+          <h1 id="h-workspace">Workspace</h1>
+          <p>Paste a report or a public commitment. Each checkable claim becomes a short evidence story.</p>
+        </header>
+
+        <div class="ws">
+          <div class="ws-input">
+            <div class="panel">
+              <div class="form-group">
+                <label class="nk-label" for="fieldSel">Field</label>
+                <div class="nk-int-st"><select class="nk-input" id="fieldSel"></select></div>
+                <p class="hint" id="fieldHint">The monitored field the claim is checked against.</p>
+              </div>
+              <div class="form-group">
+                <label class="nk-label" for="reportBox">Report text</label>
+                <div class="nk-int-st">
+                  <textarea class="nk-input" id="reportBox" rows="6" spellcheck="false"
+                    placeholder="e.g. We reduced routine gas flaring by 40% from 2019 levels and will eliminate routine flaring by 2030."></textarea>
+                </div>
+                <p class="hint kbd-hint"><span class="kbd">Ctrl</span> + <span class="kbd">Enter</span> to check.</p>
+              </div>
+              <div class="row">
+                <button class="btn btn-primary" id="analyzeBtn" type="button">Check claims</button>
+                <button class="btn btn-ghost" id="clearBtn" type="button">Clear</button>
+              </div>
+              <p class="hint" id="demoNote" hidden></p>
+              <details class="more more-input">
+                <summary>More input options</summary>
+                <div class="more-body">
+                  <button class="btn btn-ghost btn-sm" id="demoTextBtn" type="button">Load the demo report text</button>
+                  <button class="dropzone" id="fileDrop" type="button" style="margin-top:10px">
+                    <span class="ico" aria-hidden="true">&#xe929;</span>
+                    <span>Drop a .txt or .md report here, or click to choose a file</span>
+                  </button>
+                  <input type="file" id="fileInput" accept=".txt,.md,.markdown,text/plain" hidden>
+                </div>
+              </details>
+            </div>
+            <div class="panel">
+              <h2 class="panel-title-sm" style="margin-bottom:12px">Prepared cases</h2>
+              <div class="demo-launch" id="wsCases"><div class="skel" style="height:58px"></div></div>
+            </div>
+          </div>
+          <div class="ws-results" id="wsResults" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <!-- =================================================== MAP =========== -->
+      <section class="view" id="view-map" aria-labelledby="h-map" hidden>
+        <header class="page-head">
+          <h1 id="h-map">Field map</h1>
+          <p>Twelve monitored flaring regions at their real coordinates, sized by the flared volume VIIRS observed in the
+            selected year. Select a field to see what evidence exists for it.</p>
+        </header>
+        <div class="map-layout">
+          <div class="panel map-panel">
+            <div class="map-frame" id="mapFrame">
+              <svg class="map-svg" id="mapSvg" viewBox="0 0 1000 500" role="group"
+                   aria-label="World map of monitored flaring fields"></svg>
+              <div class="map-ctrl">
+                <button type="button" id="zoomIn" aria-label="Zoom in">+</button>
+                <button type="button" id="zoomOut" aria-label="Zoom out">−</button>
+                <button type="button" id="zoomRst" aria-label="Reset view">⤢</button>
+              </div>
+            </div>
+            <div class="map-legend-f" id="mapLegend"></div>
+            <div class="year-row">
+              <span class="year-badge" id="mapYear">—</span>
+              <input type="range" id="mapSlider" min="0" max="0" value="0" aria-label="Observation year">
+              <button class="btn btn-ghost btn-sm" id="mapPlay" type="button" aria-pressed="false">▶ Play years</button>
+            </div>
+            <p class="hint" id="mapSrc"></p>
+          </div>
+          <aside class="panel field-panel" id="fieldPanel" aria-live="polite"></aside>
+        </div>
+        <details class="panel more table-disclosure">
+          <summary>All monitored fields as a table</summary>
+          <div class="table-wrap" id="fieldTable" style="margin-top:12px"></div>
+        </details>
+      </section>
+
+      <!-- =============================================== RESEARCH ========== -->
+      <section class="view" id="view-research" aria-labelledby="h-research" hidden>
+        <header class="page-head">
+          <h1 id="h-research">Research</h1>
+          <p>Three experiments, all executed on real data. Each says what it shows, what it does not, and where the numbers come from.</p>
+        </header>
+        <div id="researchBody"><div class="panel"><div class="skel" style="height:200px"></div></div></div>
+      </section>
+
+      <!-- ============================================ METHOD & DATA ======== -->
+      <section class="view" id="view-about" aria-labelledby="h-about" hidden>
+        <header class="page-head">
+          <h1 id="h-about">Method &amp; data</h1>
+          <p>How a sentence becomes a verdict, the data behind it, and what it cannot establish.</p>
+        </header>
+        <div id="aboutBody"></div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-in">
+      <span>GreenTruth — verdicts are consistency statements about observations, never accusations.</span>
+      <span>Flaring: World Bank Global Gas Flaring Tracker (VIIRS) · Methane: Copernicus Sentinel-5P ·
+        Basemap: Natural Earth · Interface design language after
+        <a href="https://colorlib.com" target="_blank" rel="noopener">Notika by Colorlib</a> (MIT)</span>
+    </div>
+  </footer>
+</div>
+
+<div class="tip" id="tip" role="tooltip"></div>
+<div class="sr-only" id="announcer" aria-live="polite"></div>
+
+<script src="/js/util.js"></script>
+<script src="/js/charts.js"></script>
+<script src="/js/components.js"></script>
+<script src="/js/views.js"></script>
+<script src="/js/pages.js"></script>
+<script src="/js/map.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>

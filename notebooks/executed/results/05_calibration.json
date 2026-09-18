@@ -1,0 +1,400 @@
+{
+  "nominal_alpha": 0.1,
+  "n_fields": 12,
+  "n_observations": 936,
+  "coverage": [
+    {
+      "method": "B. split conformal",
+      "coverage": 0.8920940170940171,
+      "median_width": 1.1611357263527817,
+      "n": 936,
+      "nominal": 0.9,
+      "gap_from_nominal": -0.007905982905982878
+    },
+    {
+      "method": "C. gap-conditional conformal",
+      "coverage": 0.8974358974358975,
+      "median_width": 1.187041246155513,
+      "n": 936,
+      "nominal": 0.9,
+      "gap_from_nominal": -0.002564102564102555
+    },
+    {
+      "method": "A. bootstrap (shipped)",
+      "coverage": 0.907051282051282,
+      "median_width": 0.7806926617048626,
+      "n": 936,
+      "nominal": 0.9,
+      "gap_from_nominal": 0.007051282051282026
+    }
+  ],
+  "by_gap": [
+    {
+      "method": "A. bootstrap (shipped)",
+      "gap": 1,
+      "coverage": 0.9583333333333334,
+      "width": 0.8244531729037246,
+      "n": 144
+    },
+    {
+      "method": "A. bootstrap (shipped)",
+      "gap": 2,
+      "coverage": 0.8863636363636364,
+      "width": 0.8070303762054485,
+      "n": 132
+    },
+    {
+      "method": "A. bootstrap (shipped)",
+      "gap": 3,
+      "coverage": 0.8333333333333334,
+      "width": 0.8009353741370036,
+      "n": 120
+    },
+    {
+      "method": "A. bootstrap (shipped)",
+      "gap": 4,
+      "coverage": 0.8333333333333334,
+      "width": 0.7905808116697419,
+      "n": 108
+    },
+    {
+      "method": "A. bootstrap (shipped)",
+      "gap": 5,
+      "coverage": 0.9375,
+      "width": 0.7813002337942707,
+      "n": 96
+    },
+    {
+      "method": "A. bootstrap (shipped)",
+      "gap": 6,
+      "coverage": 0.9404761904761905,
+      "width": 0.7603005424103144,
+      "n": 84
+    },
+    {
+      "method": "A. bootstrap (shipped)",
+      "gap": 7,
+      "coverage": 0.9305555555555556,
+      "width": 0.7463182472698258,
+      "n": 72
+    },
+    {
+      "method": "A. bootstrap (shipped)",
+      "gap": 8,
+      "coverage": 0.8833333333333333,
+      "width": 0.7293823792674455,
+      "n": 60
+    },
+    {
+      "method": "A. bootstrap (shipped)",
+      "gap": 9,
+      "coverage": 0.9583333333333334,
+      "width": 0.7079730043358412,
+      "n": 48
+    },
+    {
+      "method": "A. bootstrap (shipped)",
+      "gap": 10,
+      "coverage": 0.9444444444444444,
+      "width": 0.6912605988082069,
+      "n": 36
+    },
+    {
+      "method": "A. bootstrap (shipped)",
+      "gap": 11,
+      "coverage": 0.9583333333333334,
+      "width": 0.6769486736643403,
+      "n": 24
+    },
+    {
+      "method": "A. bootstrap (shipped)",
+      "gap": 12,
+      "coverage": 1.0,
+      "width": 0.663495172010683,
+      "n": 12
+    },
+    {
+      "method": "B. split conformal",
+      "gap": 1,
+      "coverage": 0.9583333333333334,
+      "width": 1.1611357263527817,
+      "n": 144
+    },
+    {
+      "method": "B. split conformal",
+      "gap": 2,
+      "coverage": 0.8787878787878788,
+      "width": 1.1611357263527817,
+      "n": 132
+    },
+    {
+      "method": "B. split conformal",
+      "gap": 3,
+      "coverage": 0.875,
+      "width": 1.1611357263527817,
+      "n": 120
+    },
+    {
+      "method": "B. split conformal",
+      "gap": 4,
+      "coverage": 0.8796296296296297,
+      "width": 1.1611357263527817,
+      "n": 108
+    },
+    {
+      "method": "B. split conformal",
+      "gap": 5,
+      "coverage": 0.8854166666666666,
+      "width": 1.1611357263527817,
+      "n": 96
+    },
+    {
+      "method": "B. split conformal",
+      "gap": 6,
+      "coverage": 0.8690476190476191,
+      "width": 1.1611357263527817,
+      "n": 84
+    },
+    {
+      "method": "B. split conformal",
+      "gap": 7,
+      "coverage": 0.8472222222222222,
+      "width": 1.1611357263527817,
+      "n": 72
+    },
+    {
+      "method": "B. split conformal",
+      "gap": 8,
+      "coverage": 0.9,
+      "width": 1.1611357263527817,
+      "n": 60
+    },
+    {
+      "method": "B. split conformal",
+      "gap": 9,
+      "coverage": 0.9375,
+      "width": 1.1611357263527817,
+      "n": 48
+    },
+    {
+      "method": "B. split conformal",
+      "gap": 10,
+      "coverage": 0.9166666666666666,
+      "width": 1.1611357263527817,
+      "n": 36
+    },
+    {
+      "method": "B. split conformal",
+      "gap": 11,
+      "coverage": 0.8333333333333334,
+      "width": 1.1611357263527817,
+      "n": 24
+    },
+    {
+      "method": "B. split conformal",
+      "gap": 12,
+      "coverage": 0.8333333333333334,
+      "width": 1.1611357263527817,
+      "n": 12
+    },
+    {
+      "method": "C. gap-conditional conformal",
+      "gap": 1,
+      "coverage": 0.8958333333333334,
+      "width": 0.7834129871924506,
+      "n": 144
+    },
+    {
+      "method": "C. gap-conditional conformal",
+      "gap": 2,
+      "coverage": 0.8939393939393939,
+      "width": 1.2380246262577952,
+      "n": 132
+    },
+    {
+      "method": "C. gap-conditional conformal",
+      "gap": 3,
+      "coverage": 0.8916666666666667,
+      "width": 1.187041246155513,
+      "n": 120
+    },
+    {
+      "method": "C. gap-conditional conformal",
+      "gap": 4,
+      "coverage": 0.8888888888888888,
+      "width": 1.1869621438716111,
+      "n": 108
+    },
+    {
+      "method": "C. gap-conditional conformal",
+      "gap": 5,
+      "coverage": 0.8958333333333334,
+      "width": 1.3459221924374998,
+      "n": 96
+    },
+    {
+      "method": "C. gap-conditional conformal",
+      "gap": 6,
+      "coverage": 0.8928571428571429,
+      "width": 1.708517380189047,
+      "n": 84
+    },
+    {
+      "method": "C. gap-conditional conformal",
+      "gap": 7,
+      "coverage": 0.9166666666666666,
+      "width": 1.5626014597842441,
+      "n": 72
+    },
+    {
+      "method": "C. gap-conditional conformal",
+      "gap": 8,
+      "coverage": 0.9166666666666666,
+      "width": 1.6225271608713256,
+      "n": 60
+    },
+    {
+      "method": "C. gap-conditional conformal",
+      "gap": 9,
+      "coverage": 0.8958333333333334,
+      "width": 0.9479188962708921,
+      "n": 48
+    },
+    {
+      "method": "C. gap-conditional conformal",
+      "gap": 10,
+      "coverage": 0.8888888888888888,
+      "width": 1.1448669672879475,
+      "n": 36
+    },
+    {
+      "method": "C. gap-conditional conformal",
+      "gap": 11,
+      "coverage": 0.9166666666666666,
+      "width": 1.5764081767620173,
+      "n": 24
+    },
+    {
+      "method": "C. gap-conditional conformal",
+      "gap": 12,
+      "coverage": 0.9166666666666666,
+      "width": 2.7342457052344953,
+      "n": 12
+    }
+  ],
+  "level_sweep": [
+    {
+      "method": "A. bootstrap (shipped)",
+      "nominal": 0.8,
+      "coverage": 0.8044871794871795,
+      "median_width": 0.6430386949605562
+    },
+    {
+      "method": "B. split conformal",
+      "nominal": 0.8,
+      "coverage": 0.7970085470085471,
+      "median_width": 0.759125407613735
+    },
+    {
+      "method": "C. gap-conditional conformal",
+      "nominal": 0.8,
+      "coverage": 0.8023504273504274,
+      "median_width": 0.7901922585589198
+    },
+    {
+      "method": "A. bootstrap (shipped)",
+      "nominal": 0.9,
+      "coverage": 0.907051282051282,
+      "median_width": 0.7806926617048626
+    },
+    {
+      "method": "B. split conformal",
+      "nominal": 0.9,
+      "coverage": 0.8920940170940171,
+      "median_width": 1.1611357263527817
+    },
+    {
+      "method": "C. gap-conditional conformal",
+      "nominal": 0.9,
+      "coverage": 0.8974358974358975,
+      "median_width": 1.187041246155513
+    },
+    {
+      "method": "A. bootstrap (shipped)",
+      "nominal": 0.95,
+      "coverage": 0.9583333333333334,
+      "median_width": 0.901924009130866
+    },
+    {
+      "method": "B. split conformal",
+      "nominal": 0.95,
+      "coverage": 0.9433760683760684,
+      "median_width": 1.6677077665264015
+    },
+    {
+      "method": "C. gap-conditional conformal",
+      "nominal": 0.95,
+      "coverage": 0.9487179487179487,
+      "median_width": 1.6717934824385257
+    }
+  ],
+  "conformal_quantiles": {
+    "0.2": {
+      "global_q": 0.37065803199274067,
+      "by_gap": {
+        "1": 0.2677276897400377,
+        "2": 0.3950961292794599,
+        "3": 0.39431377091297604,
+        "4": 0.4460084599071949,
+        "5": 0.41698083611598497,
+        "6": 0.33996247284710795,
+        "7": 0.41511735592455185,
+        "8": 0.381449075983445,
+        "9": 0.37820961413549165,
+        "10": 0.25393479472618175,
+        "11": 0.4998376869949769,
+        "12": 0.9463946719220622
+      }
+    },
+    "0.1": {
+      "global_q": 0.5701928626104367,
+      "by_gap": {
+        "1": 0.37940553727382403,
+        "2": 0.606774615004103,
+        "3": 0.5910425756714673,
+        "4": 0.5934810719358056,
+        "5": 0.6356215331655188,
+        "6": 0.8114176833521161,
+        "7": 0.7090091507365388,
+        "8": 0.6148348739110907,
+        "9": 0.47395944813544605,
+        "10": 0.5724334836439737,
+        "11": 0.7882040883810086,
+        "12": 1.3671228526172476
+      }
+    },
+    "0.05": {
+      "global_q": 0.8077864578010816,
+      "by_gap": {
+        "1": 0.5198748648867196,
+        "2": 0.7724242364920767,
+        "3": 0.857736062378158,
+        "4": 0.7617827822434851,
+        "5": 0.8972636437737902,
+        "6": 1.0698000935796719,
+        "7": 1.0951816990655063,
+        "8": 1.4616527619550066,
+        "9": 0.8358967412192628,
+        "10": 1.0827313025452292,
+        "11": 1.3499387672444916,
+        "12": 1.3671228526172476
+      }
+    }
+  },
+  "recommendation": "C. gap-conditional conformal",
+  "caveats": [
+    "12 fields = 12 independent geographic units. Enough to measure miscalibration, not to certify a tight guarantee.",
+    "Exchangeability is violated: annual series are autocorrelated and trending, so the conformal guarantee is approximate here.",
+    "Quantiles above are fitted on ALL fields; the coverage numbers come from leave-one-field-out, which is the honest estimate."
+  ]
+}

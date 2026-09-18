@@ -1,0 +1,39 @@
+{
+  "generated_by": "scripts/eval_rule_detector.py",
+  "why": "Reproduces the baseline arm that notebook 02 left null because the greentruth package was not importable in its Colab runtime.",
+  "dataset": "climatebert/environmental_claims",
+  "split": "test",
+  "n": 265,
+  "split_source": "Hugging Face datasets-server HTTP API (no token required)",
+  "split_verified_against": "notebook_02.n_test",
+  "detector_class": "greentruth.detectors.RuleBasedDetector",
+  "deterministic": true,
+  "metrics": {
+    "model": "rule_based (shipped fallback)",
+    "accuracy": 0.7773584905660378,
+    "precision_claim": 0.6428571428571429,
+    "recall_claim": 0.26865671641791045,
+    "f1_claim": 0.37894736842105264,
+    "precision_not_claim": 0.7932489451476793,
+    "recall_not_claim": 0.9494949494949495,
+    "f1_not_claim": 0.864367816091954,
+    "macro_precision": 0.7180530440024111,
+    "macro_recall": 0.60907583295643,
+    "macro_f1": 0.6216575922565033,
+    "confusion_matrix": [
+      [
+        188,
+        10
+      ],
+      [
+        49,
+        18
+      ]
+    ],
+    "n": 265
+  },
+  "caveats": [
+    "The rule detector was written for precision on flaring-style corporate text; this dataset spans the full breadth of environmental claims, so this is an out-of-design-scope evaluation and recall is expected to be low.",
+    "Computed locally rather than in the notebook run. It is deterministic and uses the same verified split, so it is reproducible exactly."
+  ]
+}
