@@ -10,6 +10,13 @@ python3 server.py 8000      # http://localhost:8000
 CORS is off by default (same-origin). Set `GREENTRUTH_CORS_ORIGIN` to serve the
 frontend from a different origin in development.
 
+The same endpoints are served on Vercel by `api/index.py`, which reuses `server.py`'s
+handler. Paths, request bodies, status codes and responses are identical; only the host
+changes (see README → Deployment). Three endpoints are not detailed below:
+`/api/research` (the measured results the Research page shows), `/api/methane/coverage`
+(per-field Sentinel-5P retrieval coverage) and `/api/demo/cases` (the prepared demo cases,
+each with its text, field and "what to look for" note).
+
 ---
 
 ## `GET /api/health`

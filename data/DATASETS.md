@@ -26,7 +26,7 @@ Two datasets are independent only if they come from different instruments. Datas
 | **Temporal resolution** | annual |
 | **Geographic coverage** | global |
 | **Access method** | direct HTTPS download of the published .xlsx, no account |
-| **Licence** | Published publicly by the World Bank. Check the portal terms before redistribution; this project does not commit the CSVs. |
+| **Licence** | Published publicly by the World Bank, with the attribution "Flare gas volumes - NOAA, the Payne Institute at the Colorado School of Mines, World Bank/GFMR" and no separate licence stated. This project commits only the derived per-field and per-country CSVs the app reads, with that attribution; the raw downloads are not committed. |
 | **Official URL** | https://www.worldbank.org/en/programs/gasflaringreduction/global-flaring-data |
 | **Documentation** | https://www.worldbank.org/en/programs/gasflaringreduction/global-flaring-data |
 | **Processing** | notebooks/03: flares within a field's match radius are summed per field per year. |

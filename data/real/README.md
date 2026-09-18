@@ -1,8 +1,9 @@
 # data/real/
 
 Real Earth-observation series produced by `notebooks/03_real_satellite_data_pipeline.ipynb`.
-Not committed (derived from external data with their own licenses). Run notebook 03
-and drop its outputs here:
+The three files the app reads are committed (with the attribution below), so a clone or a
+deployment has its evidence. `flaring_by_operator.csv` is not used by the app and is not
+committed. Re-run notebook 03 to regenerate them:
 
 - `flaring_by_field.csv` — real per-field annual flared-gas volumes, grouped from the
   World Bank Global Gas Flaring Tracker individual-flare-location dataset (VIIRS).

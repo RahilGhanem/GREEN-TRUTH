@@ -61,8 +61,11 @@ DATASETS = [
                          "global-flaring-data"),
         "documentation_url": ("https://www.worldbank.org/en/programs/"
                               "gasflaringreduction/global-flaring-data"),
-        "licence": ("Published publicly by the World Bank. Check the portal terms "
-                    "before redistribution; this project does not commit the CSVs."),
+        "licence": ("Published publicly by the World Bank, with the attribution \"Flare gas "
+                    "volumes - NOAA, the Payne Institute at the Colorado School of Mines, "
+                    "World Bank/GFMR\" and no separate licence stated. This project commits "
+                    "only the derived per-field and per-country CSVs the app reads, with that "
+                    "attribution; the raw downloads are not committed."),
         "measures": "Flared gas volume inferred from radiant heat at detected flare sites",
         "variables": ["flare latitude", "flare longitude", "annual flared volume (BCM)"],
         "spatial_resolution": ("Individual flare detections; aggregated here to named "

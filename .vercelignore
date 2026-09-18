@@ -1,0 +1,34 @@
+# Files never uploaded by `vercel deploy` from a working copy. Mirrors .gitignore,
+# so a CLI deployment contains exactly what a GitHub-triggered deployment does.
+
+# secrets and local environments
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+env/
+
+# caches and editor/OS files
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+*.tmp
+
+# local-only material (see .gitignore for why)
+notika-master/
+greentruth-claim-detector/
+viirs_raw/
+screenshots-dev/
+playwright-report/
+test-results/
+data/real/flaring_by_operator.csv
+notebooks/executed/results/*.csv

@@ -25,9 +25,14 @@ Thumbs.db
 desktop.ini
 
 # ------------------------------------------------------ real data (licence)
-# The observation CSVs are derived from external releases with their own terms.
-# They are produced by notebooks/03 and live only in a working copy.
+# The observation CSVs are derived from external releases with their own terms
+# and are produced by notebooks/03. Only the three files the app reads at
+# runtime are committed (with attribution in DATA.md), so a deployment built
+# from this repository has its evidence. Everything else stays local.
 data/real/*.csv
+!data/real/flaring_by_field.csv
+!data/real/flaring_by_country.csv
+!data/real/methane_by_field_s5p.csv
 notebooks/executed/results/*.csv
 
 # -------------------------------------------------- local, never committed

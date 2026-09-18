@@ -147,6 +147,11 @@ substitute.
 `server.py` (standard library): static files from `web/` plus a JSON API — see
 [API.md](API.md).
 
+On Vercel, `web/` is served as static files and `api/index.py` handles `/api/*`. It is a
+subclass of `server.Handler` that only restores the original path from the `vercel.json`
+rewrite and leaves static files to the CDN, so both environments run the same routes and
+the same engine (README → Deployment).
+
 `web/` is plain HTML/CSS/JS with no build step and no runtime CDN. Fonts are vendored
 (`web/fonts/`: Roboto, notika-icon). Charts and the map are hand-drawn SVG at their real
 pixel width.

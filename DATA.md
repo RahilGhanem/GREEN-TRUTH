@@ -33,7 +33,7 @@ or who caused a change.
 | **Time range** | annual, 2012–2024 (13 years) |
 | **Spatial resolution** | individual flare detections, grouped to 12 named fields by a match radius of 60–200 km |
 | **Access** | direct download of the published .xlsx, no account |
-| **Licence** | public World Bank data; check the portal terms before redistribution. The derived CSVs are therefore not committed. |
+| **Licence** | public World Bank data. The portal states an attribution — “Flare gas volumes - NOAA, the Payne Institute at the Colorado School of Mines, World Bank/GFMR” — and no separate licence. The derived CSVs the app reads (`flaring_by_field.csv`, `flaring_by_country.csv`) are committed with that attribution so a deployment has its evidence; the raw .xlsx downloads and `flaring_by_operator.csv` are not. |
 | **Processing** | `notebooks/03_real_satellite_data_pipeline.ipynb` sums flares within each field's radius per year → `data/real/flaring_by_field.csv` (156 rows) |
 | **Limitations** | a flare near a field is consistent with activity there, not proof of who caused it; radius grouping is coarse at field edges; small flares can fall below the detection threshold, so volumes are estimates, not metered values; annual resolution hides within-year timing |
 
