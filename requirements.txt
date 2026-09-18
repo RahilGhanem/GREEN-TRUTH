@@ -1,29 +1,30 @@
-# GreenTruth runs on the Python standard library alone.
+# GreenTruth runtime dependencies
 #
-#     python3 server.py
+# The engine, the API and the interface use the Python standard library only:
 #
-# There is nothing to install for the application, the API, the charts, the map,
-# the uncertainty analysis or the evidence chain. That is deliberate: a live demo
-# should not be able to fail because of a missing wheel or a slow network.
+#     python server.py        # runs with nothing installed
 #
-# ---------------------------------------------------------------------------
-# OPTIONAL — only for the upgrade paths described in the README.
-# ---------------------------------------------------------------------------
+# Without the packages below the app still runs, uses the rule-based claim
+# detector and reports that it is the fallback (/api/health, the top bar and
+# every result).
 #
-# 1. ClimateBERT claim detection (instead of the rule-based fallback).
-#    Without these the app runs and REPORTS that it fell back to rules.
-#       transformers>=4.45
-#       torch>=2.0
+# The packages below enable the ClimateBERT claim detector
+# (https://huggingface.co/Rahilgh/greentruth-claim-detector, public, no token).
+# Vercel installs them for the deployed API; locally (Python 3.10+):
 #
-# 2. Notebooks only (they run in Colab, which already has them):
-#       pandas
-#       numpy
-#       scikit-learn
-#       matplotlib
-#       openpyxl          # reading the World Bank .xlsx releases
-#       datasets          # the environmental_claims dataset
-#       huggingface_hub   # publishing the model
-#       nbclient ipykernel  # running notebooks 04, 06, 07 locally
+#     pip install -r requirements.txt
 #
-# 3. Optional Sentinel-5P methane cross-check (notebook 03 Part B):
-#       earthengine-api
+# CPU-only PyTorch. The torch wheel comes from PyTorch's CPU download page,
+# never the default Linux build, which pulls in several GB of CUDA libraries.
+# Every other package comes from PyPI. (macOS wheels are CPU builds without the
+# "+cpu" tag.)
+--find-links https://download.pytorch.org/whl/cpu/torch/
+torch==2.14.0+cpu ; sys_platform != "darwin"
+torch==2.14.0 ; sys_platform == "darwin"
+transformers==5.17.0
+
+# Deliberately not listed (the app never imports them; Transformers brings in
+# its own numpy, tokenizers, safetensors and huggingface_hub):
+#   notebooks: pandas, scikit-learn, matplotlib, openpyxl, datasets,
+#              nbclient, ipykernel (Colab already has them)
+#   methane cross-check (notebook 03 Part B): earthengine-api

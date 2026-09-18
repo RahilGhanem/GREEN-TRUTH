@@ -42,11 +42,28 @@ FLARING_DATASET = "worldbank_gfmr_flaring"
 class GreenTruth:
     def __init__(self, evidence=None, detector_preference=None, methane=None):
         self.evidence = evidence or Evidence()
-        self.detector, self.detector_info = detectors_mod.get_detector(
-            detector_preference)
+        # The claim detector is resolved on first use, not here: loading the
+        # transformer imports PyTorch and may download the model, which should
+        # not happen merely because the application was imported.
+        self._detector_preference = detector_preference
         # Second, genuinely independent instrument. Absent -> reported as absent.
         self.methane = methane if methane is not None else methane_mod.MethaneEvidence()
         self.measured = measured_mod.MEASURED
+
+    @property
+    def detector(self):
+        """The claim detector actually in use (loaded once, then reused)."""
+        return detectors_mod.get_detector(self._detector_preference)[0]
+
+    @property
+    def detector_info(self):
+        """Which detector runs, loading it if needed, so the answer is never a guess."""
+        return self.detector.info()
+
+    def detector_status(self):
+        """Like detector_info, but never loads: 'pending' until the first use."""
+        return (detectors_mod.peek(self._detector_preference)
+                or detectors_mod.pending_info())
 
     # -- interface used by the server ------------------------------------
 

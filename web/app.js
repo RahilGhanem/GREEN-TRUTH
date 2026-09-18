@@ -127,17 +127,33 @@ async function loadMeta() {
   $("#dataChip").innerHTML = cov.has_real_data
     ? `<span class="pip"></span><b>${cov.n_observations}</b> real observations · ${cov.n_fields} fields · ${cov.year_min}–${cov.year_max}`
     : `<span class="pip warn"></span>Real evidence unavailable`;
-  const det = $("#detChip");
-  det.innerHTML = d.fallback
-    ? `<span class="pip warn"></span>Detector: <b>rule-based</b> (fallback)`
-    : `<span class="pip"></span>Detector: <b>${d.detector === "climatebert" ? "ClimateBERT" : esc(d.detector)}</b>`;
-  det.setAttribute("aria-label", d.fallback
-    ? "Claim detector: rule-based fallback. The ClimateBERT model is not loaded in this deployment."
-    : "Claim detector: ClimateBERT, model inference running.");
-  hover(det, d.fallback
-    ? `<div class="tip-v">Rule-based fallback</div><div>The ClimateBERT model is not loaded in this deployment; the transparent rule detector is used and every result says so.</div>`
-    : `<div class="tip-v">ClimateBERT</div><div>Fine-tuned claim detector · threshold ${d.threshold ?? "—"}</div>`);
+  renderDetector(d);
   renderLandingFacts();
+  // The model loads on first use. /api/meta never waits for it; /api/health
+  // loads it and reports which detector actually runs.
+  if (d.detector === "pending") {
+    getJSON("/api/health").then(h => {
+      if (state.meta && h && h.detector) { state.meta.detector = h.detector; renderDetector(h.detector); renderLandingFacts(); }
+    }).catch(() => {});
+  }
+}
+
+// "ClimateBERT" only when the backend says the model is running; otherwise the fallback or "loading".
+const detKind = d => (d.detector === "climatebert" && d.fallback === false ? "model"
+  : d.detector === "pending" ? "pending" : "rules");
+
+function renderDetector(d) {
+  const det = $("#detChip"), k = detKind(d);
+  det.innerHTML = k === "model" ? `<span class="pip"></span>Detector: <b>ClimateBERT</b>`
+    : k === "pending" ? `<span class="pip idle"></span>Detector: <b>loading…</b>`
+    : `<span class="pip warn"></span>Detector: <b>rule-based</b> (fallback)`;
+  det.setAttribute("aria-label", k === "model" ? "Claim detector: ClimateBERT, model inference running on CPU."
+    : k === "pending" ? "Claim detector: loading."
+    : "Claim detector: rule-based fallback. The ClimateBERT model is not loaded in this deployment.");
+  hover(det, k === "model"
+    ? `<div class="tip-v">ClimateBERT</div><div>Fine-tuned claim detector · CPU · threshold ${d.threshold ?? "—"}</div>`
+    : k === "pending" ? `<div class="tip-v">Loading the claim detector</div><div>The model loads on first use.</div>`
+    : `<div class="tip-v">Rule-based fallback</div><div>The ClimateBERT model is not loaded in this deployment; the transparent rule detector is used and every result says so.</div>`);
 }
 
 function renderLandingFacts(err) {
@@ -159,7 +175,8 @@ function renderLandingFacts(err) {
     const rows = Object.values(mc.coverage || {});
     facts.push(`<span class="fact">Sentinel-5P methane usable for <b>${rows.filter(r => r.usable).length} of ${rows.length}</b> fields</span>`);
   }
-  facts.push(`<span class="fact"><span class="pip ${d.fallback ? "warn" : ""}"></span>Detector: <b>${d.fallback ? "rule-based (fallback)" : "ClimateBERT"}</b></span>`);
+  const k = detKind(d);
+  facts.push(`<span class="fact"><span class="pip ${k === "rules" ? "warn" : k === "pending" ? "idle" : ""}"></span>Detector: <b>${k === "model" ? "ClimateBERT" : k === "pending" ? "loading…" : "rule-based (fallback)"}</b></span>`);
   el.innerHTML = facts.join("");
 }
 

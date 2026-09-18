@@ -9,7 +9,7 @@ the demo must not be able to die because of a network call or a missing wheel.
 
 API
 ---
-  GET  /api/health                      liveness + what is loaded
+  GET  /api/health                      liveness + which claim detector runs (loads it)
   GET  /api/meta                        fields, unit, coverage, detector in use
   GET  /api/fields                      every monitored field + observation coverage
   GET  /api/fields/<id>/observations    one field's real annual series + provenance
@@ -163,6 +163,8 @@ class Handler(BaseHTTPRequestHandler):
                 "has_real_data": cov["has_real_data"],
                 "n_fields": cov["n_fields"],
                 "n_observations": cov["n_observations"],
+                # Resolves the detector (loading the model on first call), so
+                # this always reports the detector that actually runs.
                 "detector": ENGINE.detector_info,
             })
             return
@@ -175,7 +177,9 @@ class Handler(BaseHTTPRequestHandler):
                 "has_real_data": ENGINE.evidence.has_real_data,
                 "claim_source": ENGINE.evidence.claim_source,
                 "coverage": ENGINE.evidence.coverage(),
-                "detector": ENGINE.detector_info,
+                # Never waits for the model: "pending" until it has been loaded
+                # (by /api/health or the first analysis).
+                "detector": ENGINE.detector_status(),
                 # Declared before any analysis runs, so the interface can show
                 # what cannot be checked without waiting for a claim.
                 "unavailable_channels": provenance_mod.unavailable_channels(),

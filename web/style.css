@@ -280,6 +280,7 @@ ul { margin: 0; padding: 0; }
 .landing-facts .pip { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
 .landing-facts .pip.warn { background: var(--amber); }
 .landing-facts .pip.err { background: var(--red); }
+.landing-facts .pip.idle { background: var(--grey); }
 
 /* --------------------------------------------------------------- buttons */
 
@@ -350,6 +351,7 @@ ul { margin: 0; padding: 0; }
 .chip-dark .pip { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex: none; }
 .chip-dark .pip.warn { background: var(--amber); }
 .chip-dark .pip.err { background: var(--red); }
+.chip-dark .pip.idle { background: var(--grey); }
 .icon-btn-dark {
   background: transparent; border: 1px solid var(--dark-line); color: var(--on-dark);
   border-radius: var(--r-3); min-height: 30px; padding: 4px 10px; font-size: 12px;

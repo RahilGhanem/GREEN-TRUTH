@@ -3,7 +3,7 @@ Claim detection: which sentences in a report are environmental claims.
 
     ClaimDetector
     |- ClimateBERTDetector   fine-tuned transformer, loaded from the Hugging Face Hub
-    \- RuleBasedDetector     vocabulary + achievement verbs, always available
+    `- RuleBasedDetector     vocabulary + achievement verbs, always available
 
 The transformer is preferred when it can actually be loaded. It cannot be loaded
 in a standard-library-only deployment, which is the deployment this project
@@ -23,16 +23,26 @@ most tempting to stay quiet.
 
 Enabling the model
 ------------------
-    pip install "transformers>=4.45" torch
+    pip install -r requirements.txt            # CPU PyTorch + Transformers
     export GREENTRUTH_DETECTOR=climatebert     # or leave unset for "auto"
 
 `auto` (the default) tries the model once and falls back silently-but-reported.
 `rule_based` forces the rules. `climatebert` forces the model and surfaces the
 load error instead of falling back, which is what you want in a test.
+
+Loading
+-------
+The detector is resolved on first use (`get_detector`), never at import, and
+kept for the life of the process, so a server or a warm serverless instance
+loads the model once and reuses it for every request. `peek()` reports a
+detector only if it has already been resolved; it never triggers a load.
 """
 
 import os
 import re
+import tempfile
+import threading
+import time
 
 from . import metrics as metrics_mod
 
@@ -150,6 +160,7 @@ class ClimateBERTDetector(ClaimDetector):
         self._load()
 
     def _load(self):
+        _prepare_model_cache()
         # transformers probes for TensorFlow and JAX at import time, which drags
         # in keras -> pandas -> pyarrow. On an environment where those C
         # extensions were built against a different NumPy, that probe raises and
@@ -157,8 +168,10 @@ class ClimateBERTDetector(ClaimDetector):
         # the model. Torch is all this detector needs, so the probe is disabled.
         os.environ.setdefault("USE_TF", "0")
         os.environ.setdefault("USE_JAX", "0")
+        t0 = time.perf_counter()
         try:
             import torch
+            import transformers
             from transformers import (AutoModelForSequenceClassification,
                                       AutoTokenizer)
         except Exception as e:
@@ -185,6 +198,9 @@ class ClimateBERTDetector(ClaimDetector):
                     self._positive_label = lab
             if self._positive_label is None:
                 self._positive_label = id2label.get(1, "LABEL_1")
+            self.versions = dict(torch=getattr(torch, "__version__", None),
+                                 transformers=getattr(transformers, "__version__", None))
+            self.load_seconds = round(time.perf_counter() - t0, 2)
         except Exception as e:
             raise RuntimeError(
                 f"could not load '{self.model_id}': {type(e).__name__}: "
@@ -205,8 +221,34 @@ class ClimateBERTDetector(ClaimDetector):
         d.update(model_id=self.model_id, threshold=self.threshold,
                  source="huggingface hub",
                  model_url=f"https://huggingface.co/{self.model_id}",
-                 requires_token=False)
+                 requires_token=False, device="cpu",
+                 load_seconds=getattr(self, "load_seconds", None),
+                 versions=getattr(self, "versions", None))
         return d
+
+
+def _prepare_model_cache():
+    """
+    Make sure the Hugging Face cache can be written before the hub is imported.
+
+    A local machine keeps its normal cache (~/.cache/huggingface). A serverless
+    function (Vercel) has a read-only home directory, so if no cache location is
+    configured and the default one is not writable, the cache moves to the
+    temporary directory. There, the Xet chunk cache is switched off, so a
+    download does not store the model twice in limited temporary storage.
+    """
+    if os.environ.get("HF_HOME") or os.environ.get("HF_HUB_CACHE"):
+        return
+    default = os.path.join(os.path.expanduser("~"), ".cache", "huggingface")
+    try:
+        os.makedirs(default, exist_ok=True)
+        probe = os.path.join(default, f".gt-write-probe-{os.getpid()}")
+        with open(probe, "w") as f:
+            f.write("")
+        os.remove(probe)
+    except OSError:
+        os.environ["HF_HOME"] = os.path.join(tempfile.gettempdir(), "huggingface")
+        os.environ.setdefault("HF_XET_CHUNK_CACHE_SIZE_BYTES", "0")
 
 
 # --------------------------------------------------------------------------
@@ -214,6 +256,13 @@ class ClimateBERTDetector(ClaimDetector):
 # --------------------------------------------------------------------------
 
 _CACHE = {}
+# One load at a time: concurrent first requests wait for the same model
+# instead of each loading their own copy.
+_LOCK = threading.Lock()
+
+
+def _preference(prefer):
+    return (prefer or os.environ.get("GREENTRUTH_DETECTOR") or "auto").lower()
 
 
 def get_detector(prefer=None, use_cache=True):
@@ -227,12 +276,30 @@ def get_detector(prefer=None, use_cache=True):
     hidden. In "climatebert" mode the failure is raised, so a test that means to
     exercise the model cannot silently pass on the fallback.
     """
-    prefer = (prefer or os.environ.get("GREENTRUTH_DETECTOR") or "auto").lower()
-
-    if use_cache and prefer in _CACHE:
-        det = _CACHE[prefer]
+    prefer = _preference(prefer)
+    if not use_cache:
+        det = _build(prefer)
         return det, det.info()
+    with _LOCK:
+        if prefer not in _CACHE:
+            _CACHE[prefer] = _build(prefer)
+        det = _CACHE[prefer]
+    return det, det.info()
 
+
+def peek(prefer=None):
+    """Info for the detector if it has already been resolved, else None. Never loads."""
+    det = _CACHE.get(_preference(prefer))
+    return det.info() if det is not None else None
+
+
+def pending_info():
+    """What is reported before the detector has been resolved: neither model nor rules yet."""
+    return dict(detector="pending", fallback=None,
+                reason="The claim detector is loaded on first use; /api/health loads it and reports which one runs.")
+
+
+def _build(prefer):
     if prefer == "rule_based":
         det = RuleBasedDetector()
     elif prefer == "climatebert":
@@ -242,10 +309,7 @@ def get_detector(prefer=None, use_cache=True):
             det = ClimateBERTDetector()
         except Exception as e:
             det = RuleBasedDetector(reason=str(e))
-
-    if use_cache:
-        _CACHE[prefer] = det
-    return det, det.info()
+    return det
 
 
 def reset_cache():
