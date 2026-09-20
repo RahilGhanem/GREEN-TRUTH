@@ -8,7 +8,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="preload" href="/fonts/roboto-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/style.css">
 <link rel="icon" type="image/png" href="/icons/logo-64.png">
 <meta name="theme-color" content="#070b12">
@@ -84,10 +83,20 @@
       <div class="top-status">
         <span class="chip-dark" id="dataChip"><span class="pip warn"></span>Loading evidence…</span>
         <span class="chip-dark" id="detChip" tabindex="0"><span class="pip warn"></span>Detector…</span>
-        <button class="icon-btn-dark" id="themeBtn" type="button" aria-pressed="false">◐ Dark theme</button>
-        <span class="chip-dark" id="dataChip"><span class="pip"></span><b>156</b> real observations · 12 fields</span>
-        <span class="chip-dark" id="detChip" tabindex="0"><span class="pip"></span>Detector: <b>ClimateBERT</b></span>
-        <button class="icon-btn-dark" id="themeBtn" type="button" aria-pressed="true"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg><span>Light mode</span></button>
+        <button class="icon-btn-dark" id="themeBtn" type="button" aria-pressed="false" aria-label="Toggle color theme">
+          <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <span>Light mode</span>
+        </button>
       </div>
     </div>
   </header>
