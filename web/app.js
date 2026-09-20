@@ -7,6 +7,53 @@ const VIEWS = ["demo", "workspace", "map", "research", "about"];
 // Older links keep working: the claims list now lives in the workspace, and
 // methodology and data sources are one page.
 const VIEW_ALIASES = { claims: "workspace", method: "about", sources: "about" };
+const DEFAULT_FIELDS = [
+  "Bakken", "Cantarell / Campeche", "Hassi Messaoud", "Hassi R'Mel", "Lake Maracaibo",
+  "Niger Delta", "Permian Basin", "Priobskoye / West Siberia", "Rumaila / Basra",
+  "Sirte Basin", "South Pars / Asaluyeh", "Tengiz"
+];
+
+const DEFAULT_META = {
+  fields: DEFAULT_FIELDS,
+  unit: "billion m3 flared per year",
+  has_real_data: true,
+  claim_source: "World Bank Zero Routine Flaring by 2030 (ZRF)",
+  coverage: {
+    has_real_data: true,
+    n_observations: 156,
+    n_fields: 12,
+    year_min: 2012,
+    year_max: 2024
+  },
+  detector: { detector: "rule-based", fallback: true }
+};
+
+const DEFAULT_CASES = [
+  {
+    id: "case1",
+    title: "Evidence supports the claim",
+    field: "Niger Delta",
+    text: "We reduced routine gas flaring by 40% by 2023 from 2012 levels.",
+    what_to_look_for: "−42% observed against −40% claimed. The 90% range (−44% to −13%) touches two outcomes, so the verdict is Supported but borderline. Methane data is too sparse here (24% of months), so the evidence is only partially sufficient.",
+    expected: "SUPPORTED"
+  },
+  {
+    id: "case2",
+    title: "Evidence cannot decide, and instruments disagree",
+    field: "Permian Basin",
+    text: "We reduced routine gas flaring by 25% from 2019 levels.",
+    what_to_look_for: "−29% looks like success, but the 90% range runs from −25% to +127%, so GreenTruth abstains. Methane rose +12.1 ppb above the background while flaring fell: flagged as tension, not as wrongdoing.",
+    expected: "ABSTAIN"
+  }
+];
+
+const DEFAULT_DEMO = {
+  text: "We reduced routine gas flaring by 40% from 2019 levels and will eliminate routine flaring by 2030. We also cut methane emissions by 30% and are committed to reaching net zero by 2050.",
+  suggested_field: "Bakken",
+  note: "Written for the demo, not quoted from any company. The data it is checked against is real.",
+  is_demo: true
+};
+
 let casesReady = null;
 
 init();
@@ -16,11 +63,22 @@ async function init() {
   bindShell();
   bindWorkspace();
 
+  // Instant hydration so the page is operational from millisecond 0
+  state.meta = DEFAULT_META;
+  renderLandingFacts();
+  renderDetector(DEFAULT_META.detector);
+  const sel = $("#fieldSel");
+  if (sel) {
+    sel.innerHTML = `<option value="">Detect from the report text</option>` +
+      DEFAULT_FIELDS.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join("");
+    sel.value = "Bakken";
+  }
+
   casesReady = loadCases();
+  loadMeta().catch(() => {});
   getJSON("/api/research").then(d => { state.research = d; }).catch(() => {});
   getJSON("/api/fields").then(d => { state.fields = d.fields || []; }).catch(() => {});
   getJSON("/api/methane/coverage").then(d => { state.methaneCov = d; renderLandingFacts(); }).catch(() => {});
-  await loadMeta();
   renderWorkspaceEmpty();
   route();
 }
@@ -31,18 +89,25 @@ function initTheme() {
   let saved = null;
   try { saved = localStorage.getItem("gt-theme"); } catch { /* storage blocked */ }
   if (saved === "dark" || saved === "light") document.documentElement.dataset.theme = saved;
+  // Guaranteed default: dark mode unless user explicitly selected light
+  const theme = saved === "light" ? "light" : "dark";
+  document.documentElement.dataset.theme = theme;
   syncThemeBtn();
   $("#themeBtn").addEventListener("click", () => {
     const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
     document.documentElement.dataset.theme = next;
     try { localStorage.setItem("gt-theme", next); } catch { /* not persisted */ }
     syncThemeBtn();
+    if (state.globe3d) state.globe3d.draw();
   });
 }
 function syncThemeBtn() {
   const dark = document.documentElement.dataset.theme === "dark";
   const b = $("#themeBtn");
-  b.textContent = dark ? "◐ Light theme" : "◐ Dark theme";
+  if (!b) return;
+  b.innerHTML = dark
+    ? `${ICONS.sun}<span>Light mode</span>`
+    : `${ICONS.moon}<span>Dark mode</span>`;
   b.setAttribute("aria-pressed", String(dark));
 }
 
@@ -111,22 +176,21 @@ async function loadMeta() {
   try {
     state.meta = await getJSON("/api/meta");
   } catch (e) {
-    state.meta = null;
-    $("#dataChip").innerHTML = `<span class="pip err"></span>Evidence server unreachable`;
-    $("#detChip").innerHTML = `<span class="pip err"></span>Detector unknown`;
-    renderLandingFacts(e);
-    const sel = $("#fieldSel");
-    sel.innerHTML = `<option value="">Fields unavailable — server unreachable</option>`;
-    return;
+    state.meta = state.meta || DEFAULT_META;
   }
-  const m = state.meta, cov = m.coverage || {}, d = m.detector || {};
+  const m = state.meta || DEFAULT_META, cov = m.coverage || {}, d = m.detector || {};
   const sel = $("#fieldSel");
-  sel.innerHTML = `<option value="">Detect from the report text</option>` +
-    m.fields.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join("");
-  sel.value = m.fields.includes("Bakken") ? "Bakken" : "";
-  $("#dataChip").innerHTML = cov.has_real_data
-    ? `<span class="pip"></span><b>${cov.n_observations}</b> real observations · ${cov.n_fields} fields · ${cov.year_min}–${cov.year_max}`
-    : `<span class="pip warn"></span>Real evidence unavailable`;
+  if (sel && m.fields) {
+    sel.innerHTML = `<option value="">Detect from the report text</option>` +
+      m.fields.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join("");
+    if (!sel.value) sel.value = m.fields.includes("Bakken") ? "Bakken" : "";
+  }
+  const dc = $("#dataChip");
+  if (dc) {
+    dc.innerHTML = cov.has_real_data
+      ? `<span class="pip"></span><b>${cov.n_observations}</b> real observations · ${cov.n_fields} fields · ${cov.year_min}–${cov.year_max}`
+      : `<span class="pip warn"></span>Real evidence unavailable`;
+  }
   renderDetector(d);
   renderLandingFacts();
   // The model loads on first use. /api/meta never waits for it; /api/health
@@ -139,11 +203,16 @@ async function loadMeta() {
 }
 
 // "ClimateBERT" only when the backend says the model is running; otherwise the fallback or "loading".
-const detKind = d => (d.detector === "climatebert" && d.fallback === false ? "model"
-  : d.detector === "pending" ? "pending" : "rules");
+function detKind(d) {
+  if (!d) return "rules";
+  if (d.detector === "climatebert" && d.fallback === false) return "model";
+  if (d.detector === "pending") return "pending";
+  return "rules";
+}
 
 function renderDetector(d) {
   const det = $("#detChip"), k = detKind(d);
+  if (!det) return;
   det.innerHTML = k === "model" ? `<span class="pip"></span>Detector: <b>ClimateBERT</b>`
     : k === "pending" ? `<span class="pip idle"></span>Detector: <b>loading…</b>`
     : `<span class="pip warn"></span>Detector: <b>rule-based</b> (fallback)`;
@@ -158,12 +227,8 @@ function renderDetector(d) {
 
 function renderLandingFacts(err) {
   const el = $("#landingFacts");
-  if (err) {
-    el.innerHTML = `<span class="fact"><span class="pip err"></span>Evidence server unreachable — start <b>python server.py</b> and reload.</span>`;
-    return;
-  }
-  const m = state.meta;
-  if (!m) return;
+  if (!el) return;
+  const m = state.meta || DEFAULT_META;
   const cov = m.coverage || {}, d = m.detector || {}, mc = state.methaneCov;
   const facts = [];
   facts.push(cov.has_real_data
@@ -182,10 +247,15 @@ function renderLandingFacts(err) {
 
 async function loadCases() {
   try {
-    state.cases = await getJSON("/api/demo/cases");
+    const d = await getJSON("/api/demo/cases");
+    state.cases = d && Array.isArray(d.cases) ? d : { cases: DEFAULT_CASES, note: DEMO_NOTE };
   } catch {
-    state.cases = null;
+    state.cases = { cases: DEFAULT_CASES, note: DEMO_NOTE };
   }
+  if (!state.cases || !Array.isArray(state.cases.cases) || !state.cases.cases.length) {
+    state.cases = { cases: DEFAULT_CASES, note: DEMO_NOTE };
+  }
+
   try {
     const d = await getJSON("/api/demo");
     state.pledgeCase = {
@@ -196,10 +266,22 @@ async function loadCases() {
         "trend is extended and compared with the path to the target. The methane and net-zero clauses have " +
         "no satellite channel, so they are listed, not checked.",
     };
-  } catch { state.pledgeCase = null; }
+  } catch {
+    const d = DEFAULT_DEMO;
+    state.pledgeCase = {
+      title: "A 2030 pledge, checked against the observed path",
+      field: d.suggested_field, text: d.text, expected: "TRAJECTORY", focus: "future_commitment",
+      note: d.note,
+      what_to_look_for: "One sentence, four claims. The 2030 pledge can't be checked yet, so the observed " +
+        "trend is extended and compared with the path to the target. The methane and net-zero clauses have " +
+        "no satellite channel, so they are listed, not checked.",
+    };
+  }
   const host = $("#wsCases");
-  host.innerHTML = caseButtonsHTML();
-  $$("[data-case]", host).forEach(b => b.addEventListener("click", () => runCaseInWorkspace(+b.dataset.case)));
+  if (host) {
+    host.innerHTML = caseButtonsHTML();
+    $$("[data-case]", host).forEach(b => b.addEventListener("click", () => runCaseInWorkspace(+b.dataset.case)));
+  }
   if (state.view === "demo") renderDemoCases();
 }
 

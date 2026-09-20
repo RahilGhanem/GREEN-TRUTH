@@ -4,14 +4,14 @@
    consistent way of presenting evidence everywhere. */
 
 const PIPELINE_STEPS = [
-  ["Detect", "Find claim sentences (ClimateBERT, or rules as a labelled fallback)."],
-  ["Decompose", "Split past results from future pledges."],
-  ["Resolve", "Match the claim to a monitored field."],
-  ["Observe", "Load its real flaring series (VIIRS)."],
-  ["Compare", "Measure the change, or project a pledge."],
-  ["Uncertainty", "Too uncertain to decide? Abstain."],
-  ["Evidence", "Cross-check other sources; rate the evidence."],
-  ["Verdict", "About observations, never an accusation."],
+  ["Detect", "Extract claim statements via ClimateBERT or rule-based fallback"],
+  ["Decompose", "Isolate historical deltas from future trajectory pledges"],
+  ["Resolve", "Map facility or company to satellite basin centroid"],
+  ["Observe", "Retrieve calibrated VIIRS Nightfire flaring time series"],
+  ["Compare", "Compute empirical change vs claimed reduction rate"],
+  ["Uncertainty", "90% residual bootstrap calibration & confidence band"],
+  ["Evidence", "Cross-validate against national totals and Sentinel-5P methane"],
+  ["Verdict", "Synthesize defensible audit verdict and limitations"],
 ];
 
 /* ================================================================ workspace */
@@ -23,18 +23,18 @@ function renderWorkspaceEmpty() {
   host.innerHTML = `
     ${cov && !cov.has_real_data ? noDataState() : ""}
     <div class="panel onboard-card reveal">
-      <span class="kicker">What happens when you check a report</span>
-      <h2 class="panel-title">Every claim becomes a short evidence story</h2>
+      <span class="kicker">Orbital Evidence Pipeline</span>
+      <h2 class="panel-title">Automated Satellite Verification for Climate Claims</h2>
       <ol class="story-preview">
-        <li><b>What was claimed?</b><span>the sentence, split into checkable parts</span></li>
-        <li><b>What did the satellite observe?</b><span>the real annual flaring series for the field</span></li>
-        <li><b>Can the data decide?</b><span>a 90% interval — if it spans several outcomes, GreenTruth abstains</span></li>
-        <li><b>Do other sources agree?</b><span>the national total and an independent methane satellite</span></li>
-        <li><b>What can — and cannot — be concluded?</b><span>including what no satellite can establish</span></li>
+        <li><b>1. Claim Decomposition</b><span>Extracts metric, baseline year, outcome year, and claimed reduction rate.</span></li>
+        <li><b>2. Earth Observation</b><span>Queries multi-year VIIRS Nightfire satellite radiometric flare series.</span></li>
+        <li><b>3. Uncertainty & Abstention</b><span>Calculates 90% bootstrap interval. Multi-zone spread triggers abstention.</span></li>
+        <li><b>4. Multi-Sensor Corroboration</b><span>Cross-checks basin trend against national total and Sentinel-5P methane.</span></li>
+        <li><b>5. Defensible Audit Verdict</b><span>Transparent audit trail detailing what observations establish.</span></li>
       </ol>
       <div class="row" style="margin-top:18px">
-        <button class="btn btn-primary" type="button" data-case-go="1">Try the abstention case</button>
-        <button class="btn btn-ghost" type="button" data-go="demo">Guided demo</button>
+        <button class="btn btn-primary" type="button" data-case-go="1">Run Abstention Case</button>
+        <button class="btn btn-ghost" type="button" data-go="demo">Guided Pipeline Demo</button>
       </div>
     </div>`;
   bindActs(host);
@@ -167,7 +167,8 @@ const DEMO_STEPS = ["Detect", "Decompose", "Resolve", "Observe", "Compare", "Unc
 /* The two prepared server cases, plus the pledge from the backend's own demo
    text (/api/demo) so the 2030 trajectory is one click away. */
 function allCases() {
-  const list = state.cases ? [...state.cases.cases] : [];
+  const base = state.cases && Array.isArray(state.cases.cases) ? state.cases.cases : [];
+  const list = [...base];
   if (state.pledgeCase) list.push(state.pledgeCase);
   return list;
 }
@@ -223,10 +224,11 @@ function stepperHTML(outs, running) {
   return `<ol class="stepper" aria-label="Pipeline progress">${DEMO_STEPS.map((n, i) => {
     const o = outs && outs[i];
     const cls = running ? "running" : o ? (o.na ? "na" : "done") : "";
+    const badge = !running && o && !o.na ? `<span class="step-check" aria-hidden="true">${ICONS.pass || "✓"}</span>` : `${i + 1}`;
     return `<li class="step ${cls}" style="--i:${i}">
-      <span class="sd" aria-hidden="true">${!running && o && !o.na ? "✓" : i + 1}</span>
+      <span class="sd" aria-hidden="true">${badge}</span>
       <span class="sn">${n}</span>
-      <span class="so">${running ? "running…" : o ? esc(o.out) : ""}</span>
+      <span class="so">${running ? "processing…" : o ? esc(o.out) : ""}</span>
       <span class="sr-only">${running ? "running" : o ? (o.na ? "not applicable" : "done") : ""}</span></li>`;
   }).join("")}</ol>`;
 }
@@ -269,18 +271,18 @@ function renderDemoResult(i, r, ms, sel = null) {
   const next = i + 1 < cases.length ? i + 1 : null;
   // A text that splits into several claims: show the split, and let each claim's story be opened here.
   const split = r.claims.length > 1 ? `<div class="demo-split">
-      <p class="section-label">This text was split into ${r.claims.length} separate claims, each checked on its own</p>
+      <p class="section-label">Report decomposed into ${r.claims.length} atomic claims — each checked independently</p>
       <div class="claim-tabs" role="tablist" aria-label="Claims in this case">${r.claims.map((k, j) => {
         const st = vstyle(k.verdict);
         return `<button type="button" role="tab" class="ctab tone-${st.tone}" data-claim="${j}" aria-selected="${j === idx}">
-          <span class="ctab-v"><span aria-hidden="true">${st.sym}</span> ${esc(shortLabel(k.verdict_label))}${j === focus ? " · this case" : ""}</span>
+          <span class="ctab-v"><span class="ctab-ico" aria-hidden="true">${st.sym}</span> ${esc(shortLabel(k.verdict_label))}${j === focus ? " · this case" : ""}</span>
           <span class="ctab-t">${esc(k.text)}</span></button>`;
       }).join("")}</div></div>` : "";
   host.innerHTML = `
     <div class="panel demo-head">
       ${stepperHTML(stepOutputs(r, idx), false)}
-      <p class="timing">Ran live in ${Math.round(ms)} ms.</p>
-      <div class="lookfor"><b>What to look for.</b> ${esc(cs.what_to_look_for)}
+      <p class="timing">Live pipeline executed in <b>${Math.round(ms)} ms</b></p>
+      <div class="lookfor"><b>Case Focus:</b> ${esc(cs.what_to_look_for)}
         <span class="muted">${esc(cs.note || (state.cases ? state.cases.note : ""))}</span></div>
       ${split}
     </div>

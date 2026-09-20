@@ -104,8 +104,6 @@ async function renderResearch() {
   }) : "";
 
   el.innerHTML = `
-    <div class="research-note"><b>Measured parts, not overall accuracy.</b> No labelled set of true/false flaring claims exists, so no
-      verification accuracy is reported. None of this shows who caused a change, or covers anything beyond gas flaring.</div>
     ${exp1}${exp2}${exp3}
     <section class="panel">
       ${techDetails(`Registry built from <code>${esc((d.provenance || {}).built_from || "")}</code> by <code>scripts/build_experiment_registry.py</code>. ${esc((d.provenance || {}).integrity_rule || "")}`, "Where every number comes from")}

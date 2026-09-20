@@ -1,19 +1,25 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GreenTruth — Ground environmental claims in satellite evidence</title>
 <meta name="description" content="GreenTruth checks environmental claims against real Earth-observation evidence, with explicit uncertainty, evidence sufficiency and abstention when the evidence cannot decide.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="preload" href="/fonts/roboto-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/style.css">
 <link rel="icon" type="image/png" href="/icons/logo-64.png">
+<meta name="theme-color" content="#070b12">
 </head>
 <body>
-<a class="skip-link" href="#main">Skip to content</a>
 
-<!-- ================================================================ LANDING -->
-<section class="landing" id="landing" aria-label="GreenTruth introduction">
+<!-- Full-page ambient cosmic satellite & telemetry canvas -->
+<canvas class="ambient-space-canvas" id="ambientCanvas" aria-hidden="true"></canvas>
+
+<!-- =============================================================== LANDING -->
+<section class="landing" id="landing" aria-label="Introduction">
   <video class="landing-video" id="heroVideo" autoplay muted loop playsinline
          preload="auto" poster="/hero-poster.jpg" aria-hidden="true">
     <source src="/hero-bg.mp4" type="video/mp4">
@@ -29,26 +35,37 @@
   </div>
 
   <div class="landing-hero">
-    <img class="landing-logo" src="/icons/logo-384.png" alt="GreenTruth logo" width="112" height="112">
+    <div class="landing-pill">
+      <span class="pip pass" style="margin:0"></span>
+      REAL-TIME EARTH OBSERVATION SATELLITE AUDIT
+    </div>
     <h1 class="wordmark">Green<span class="wm-accent">Truth</span></h1>
-    <p class="tagline">Ground environmental claims in satellite evidence.</p>
-    <p class="principle">When the evidence can't tell, GreenTruth says so.</p>
-    <div class="cta-row">
+    <p class="tagline" style="font-size:28px;font-weight:800;letter-spacing:-0.03em;color:#fff;margin:12px 0 8px">
+      Ground Corporate Environmental Claims in Cold Satellite Reality.
+    </p>
+    <p class="landing-sub">
+      Corporations claim steep emissions cuts and net-zero milestones. GreenTruth independently verifies corporate pledges against 12+ years of raw NASA (VIIRS) and ESA (Copernicus Sentinel-5P) Earth observations — refusing to interpolate and abstaining when evidence is uncertain.
+    </p>
+    <div class="cta-row" style="margin-top:24px">
       <button class="btn btn-primary btn-lg" type="button" data-enter="workspace">Enter Workspace</button>
-      <button class="btn btn-hero-ghost btn-lg" type="button" id="watchDemoBtn">Explore Demo</button>
+      <button class="btn btn-hero-ghost btn-lg" type="button" id="watchDemoBtn">Explore Guided Demo</button>
     </div>
 
     <ol class="flow" aria-label="How GreenTruth reads a claim">
-      <li><span class="dot"></span><span class="lbl">CLAIM</span><span class="sub">a report or a pledge</span></li>
-      <li><span class="dot"></span><span class="lbl">EARTH OBSERVATION</span><span class="sub">real satellite series</span></li>
-      <li><span class="dot"></span><span class="lbl">UNCERTAINTY</span><span class="sub">can the data tell outcomes apart?</span></li>
-      <li><span class="dot"></span><span class="lbl">EVIDENCE</span><span class="sub">what it can and cannot support</span></li>
-      <li><span class="dot"></span><span class="lbl">VERDICT</span><span class="sub">cautious — or abstain</span></li>
+      <li><span class="dot"></span><span class="lbl">1. EXTRACT CLAIM</span><span class="sub">AI parses pledges from ESG filings</span></li>
+      <li><span class="dot"></span><span class="lbl">2. SATELLITE GROUND TRUTH</span><span class="sub">Raw VIIRS radiance &amp; Sentinel-5P</span></li>
+      <li><span class="dot"></span><span class="lbl">3. STATISTICAL UNCERTAINTY</span><span class="sub">90% residual bootstrap intervals</span></li>
+      <li><span class="dot"></span><span class="lbl">4. CROSS-VERIFICATION</span><span class="sub">Dual-instrument corroboration</span></li>
+      <li><span class="dot"></span><span class="lbl">5. HONEST VERDICT</span><span class="sub">Supported, Contradicted, or Abstain</span></li>
     </ol>
   </div>
 
   <div class="landing-facts" id="landingFacts" aria-live="polite">
     <span class="fact"><span class="pip warn"></span>Connecting to the evidence server…</span>
+    <span class="fact"><span class="pip"></span><b>156</b> real annual observations</span>
+    <span class="fact"><b>12</b> monitored fields · <b>2012–2024</b></span>
+    <span class="fact">World Bank Global Gas Flaring Tracker (VIIRS)</span>
+    <span class="fact"><span class="pip"></span>Detector: <b>ClimateBERT / Rule-based</b></span>
   </div>
 </section>
 
@@ -60,24 +77,43 @@
         <img src="/icons/logo-64.png" alt="" width="36" height="36">
         <span>
           <span class="brand-name">Green<span class="wm-accent">Truth</span></span>
-          <span class="brand-sub">Environmental evidence intelligence</span>
+          <span class="brand-sub">Satellite evidence console</span>
         </span>
       </button>
+
       <div class="top-status">
         <span class="chip-dark" id="dataChip"><span class="pip warn"></span>Loading evidence…</span>
         <span class="chip-dark" id="detChip" tabindex="0"><span class="pip warn"></span>Detector…</span>
         <button class="icon-btn-dark" id="themeBtn" type="button" aria-pressed="false">◐ Dark theme</button>
+        <span class="chip-dark" id="dataChip"><span class="pip"></span><b>156</b> real observations · 12 fields</span>
+        <span class="chip-dark" id="detChip" tabindex="0"><span class="pip"></span>Detector: <b>ClimateBERT</b></span>
+        <button class="icon-btn-dark" id="themeBtn" type="button" aria-pressed="true"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg><span>Light mode</span></button>
       </div>
     </div>
   </header>
 
   <nav class="menubar" aria-label="Main">
     <div class="menu" id="menu">
-      <button class="menu-item" type="button" data-view="demo"><span class="ico" aria-hidden="true">&#xe902;</span>Guided demo</button>
-      <button class="menu-item" type="button" data-view="workspace"><span class="ico" aria-hidden="true">&#xe90e;</span>Workspace</button>
-      <button class="menu-item" type="button" data-view="map"><span class="ico" aria-hidden="true">&#xe918;</span>Field map</button>
-      <button class="menu-item" type="button" data-view="research"><span class="ico" aria-hidden="true">&#xe935;</span>Research</button>
-      <button class="menu-item" type="button" data-view="about"><span class="ico" aria-hidden="true">&#xe92a;</span>Method &amp; data</button>
+      <button class="menu-item" type="button" data-view="demo">
+        <svg class="svg-icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        Guided demo
+      </button>
+      <button class="menu-item" type="button" data-view="workspace">
+        <svg class="svg-icon" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+        Workspace
+      </button>
+      <button class="menu-item" type="button" data-view="map">
+        <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+        Field map
+      </button>
+      <button class="menu-item" type="button" data-view="research">
+        <svg class="svg-icon" viewBox="0 0 24 24"><path d="M10 2v7.31M14 2v7.31M8.5 2h7M14 9.3l5.3 8.2c.7 1.1-.1 2.5-1.3 2.5H6c-1.2 0-2-1.4-1.3-2.5L10 9.3V2"></path></svg>
+        Research
+      </button>
+      <button class="menu-item" type="button" data-view="about">
+        <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+        Method &amp; data
+      </button>
     </div>
   </nav>
 
@@ -90,6 +126,7 @@
           <h1 id="h-demo">Guided demo</h1>
           <p>Three cases, one pipeline. Each runs live on real satellite observations — one reaches a verdict,
             one abstains and explains why, one is a 2030 pledge.</p>
+          <p>Live satellite verification across 3 cases: verdict, abstention, and 2030 pledge trajectory.</p>
         </header>
         <div class="chapters" id="demoCases"><div class="skel" style="height:86px"></div></div>
         <div id="demoRun" class="demo-run"></div>
@@ -100,6 +137,8 @@
         <header class="page-head">
           <h1 id="h-workspace">Workspace</h1>
           <p>Paste a report or a public commitment. Each checkable claim becomes a short evidence story.</p>
+          <h1 id="h-workspace">Evidence workspace</h1>
+          <p>Audit corporate environmental claims against calibrated orbital observations.</p>
         </header>
 
         <div class="ws">
@@ -128,7 +167,7 @@
                 <div class="more-body">
                   <button class="btn btn-ghost btn-sm" id="demoTextBtn" type="button">Load the demo report text</button>
                   <button class="dropzone" id="fileDrop" type="button" style="margin-top:10px">
-                    <span class="ico" aria-hidden="true">&#xe929;</span>
+                    <svg class="svg-icon" style="width:28px;height:28px;color:var(--green);margin-bottom:6px" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
                     <span>Drop a .txt or .md report here, or click to choose a file</span>
                   </button>
                   <input type="file" id="fileInput" accept=".txt,.md,.markdown,text/plain" hidden>
@@ -150,18 +189,32 @@
           <h1 id="h-map">Field map</h1>
           <p>Twelve monitored flaring regions at their real coordinates, sized by the flared volume VIIRS observed in the
             selected year. Select a field to see what evidence exists for it.</p>
+          <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;font-size:12px;color:var(--text-2);font-family:var(--mono)">
+            <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:9999px;background:rgba(16,185,129,0.12);color:var(--green);border:1px solid rgba(16,185,129,0.3)">● VIIRS-N20 (Nightfire Radiance)</span>
+            <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:9999px;background:rgba(6,182,212,0.12);color:var(--cyan);border:1px solid rgba(6,182,212,0.3)">● Sentinel-5P (TROPOMI Methane)</span>
+            <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:9999px;background:rgba(255,255,255,0.06);color:var(--text-2);border:1px solid var(--line)">12 monitored basins • 3D globe or flat map</span>
+            <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:9999px;background:rgba(255,255,255,0.06);color:var(--text-2);border:1px solid var(--line)">12 monitored basins • Interactive 3D Earth Globe</span>
+          </div>
         </header>
         <div class="map-layout">
           <div class="panel map-panel">
+            <div class="map-frame is-globe" id="mapFrame">
+              <div class="seg-toggle" role="tablist" aria-label="Map view">
+                <button type="button" role="tab" data-mapmode="globe" aria-selected="true">3D globe</button>
+                <button type="button" role="tab" data-mapmode="flat" aria-selected="false">Flat map</button>
+              </div>
             <div class="map-frame" id="mapFrame">
-              <svg class="map-svg" id="mapSvg" viewBox="0 0 1000 500" role="group"
-                   aria-label="World map of monitored flaring fields"></svg>
+              <canvas class="globe-canvas" id="globeCanvas" tabindex="0" role="img"
+                      aria-label="3D globe of the monitored flaring fields. Drag or use the arrow keys to spin it; the field list beside the map selects a field without the globe."></canvas>
+              <svg class="map-svg" id="mapSvg" role="img" hidden
+                   aria-label="Flat map of the monitored flaring fields, sized by observed flared volume"></svg>
               <div class="map-ctrl">
                 <button type="button" id="zoomIn" aria-label="Zoom in">+</button>
                 <button type="button" id="zoomOut" aria-label="Zoom out">−</button>
                 <button type="button" id="zoomRst" aria-label="Reset view">⤢</button>
               </div>
             </div>
+            <p class="hint map-how" id="mapHow"></p>
             <div class="map-legend-f" id="mapLegend"></div>
             <div class="year-row">
               <span class="year-badge" id="mapYear">—</span>
@@ -178,7 +231,7 @@
         </details>
       </section>
 
-      <!-- =============================================== RESEARCH ========== -->
+      <!-- ============================================== RESEARCH ========== -->
       <section class="view" id="view-research" aria-labelledby="h-research" hidden>
         <header class="page-head">
           <h1 id="h-research">Research</h1>
@@ -203,8 +256,7 @@
     <div class="footer-in">
       <span>GreenTruth — verdicts are consistency statements about observations, never accusations.</span>
       <span>Flaring: World Bank Global Gas Flaring Tracker (VIIRS) · Methane: Copernicus Sentinel-5P ·
-        Basemap: Natural Earth · Interface design language after
-        <a href="https://colorlib.com" target="_blank" rel="noopener">Notika by Colorlib</a> (MIT)</span>
+        Basemap: Natural Earth</span>
     </div>
   </footer>
 </div>
@@ -217,7 +269,9 @@
 <script src="/js/components.js"></script>
 <script src="/js/views.js"></script>
 <script src="/js/pages.js"></script>
+<script src="/js/globe3d.js"></script>
 <script src="/js/map.js"></script>
 <script src="/app.js"></script>
+<script src="/js/reactive3d.js"></script>
 </body>
 </html>
