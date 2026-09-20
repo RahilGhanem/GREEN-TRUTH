@@ -1,30 +1,20 @@
-# GreenTruth runtime dependencies
+# GreenTruth deployment dependencies
 #
-# The engine, the API and the interface use the Python standard library only:
+# The app runs with the Python standard library only and the rule-based fallback
+# detector. This is the Vercel-safe default: it keeps the serverless bundle small
+# enough to deploy while still serving the full app and API.
 #
-#     python server.py        # runs with nothing installed
+# Optional local-only model support (not installed for Vercel):
+#   python -m venv .venv
+#   .venv/Scripts/python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+#   .venv/Scripts/python -m pip install "transformers>=4.45"
 #
-# Without the packages below the app still runs, uses the rule-based claim
-# detector and reports that it is the fallback (/api/health, the top bar and
-# every result).
+# Without torch/transformers, GreenTruth runs in transparent rule-based mode and
+# reports that fallback on the UI and /api/health.
 #
-# The packages below enable the ClimateBERT claim detector
-# (https://huggingface.co/Rahilgh/greentruth-claim-detector, public, no token).
-# Vercel installs them for the deployed API; locally (Python 3.10+):
+# The model packages are intentionally omitted here because Vercel bundles every
+# Python dependency into a single serverless function and the full torch +
+# transformers stack exceeds the Lambda/package limit.
 #
-#     pip install -r requirements.txt
-#
-# CPU-only PyTorch. The torch wheel comes from PyTorch's CPU download page,
-# never the default Linux build, which pulls in several GB of CUDA libraries.
-# Every other package comes from PyPI. (macOS wheels are CPU builds without the
-# "+cpu" tag.)
---find-links https://download.pytorch.org/whl/cpu/torch/
-torch==2.14.0+cpu ; sys_platform != "darwin"
-torch==2.14.0 ; sys_platform == "darwin"
-transformers==5.17.0
-
-# Deliberately not listed (the app never imports them; Transformers brings in
-# its own numpy, tokenizers, safetensors and huggingface_hub):
-#   notebooks: pandas, scikit-learn, matplotlib, openpyxl, datasets,
-#              nbclient, ipykernel (Colab already has them)
-#   methane cross-check (notebook 03 Part B): earthengine-api
+# For local experiments with the ClimateBERT detector, install the optional
+# packages above instead of relying on the deployment bundle.
