@@ -192,22 +192,14 @@
           <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;font-size:12px;color:var(--text-2);font-family:var(--mono)">
             <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:9999px;background:rgba(16,185,129,0.12);color:var(--green);border:1px solid rgba(16,185,129,0.3)">● VIIRS-N20 (Nightfire Radiance)</span>
             <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:9999px;background:rgba(6,182,212,0.12);color:var(--cyan);border:1px solid rgba(6,182,212,0.3)">● Sentinel-5P (TROPOMI Methane)</span>
-            <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:9999px;background:rgba(255,255,255,0.06);color:var(--text-2);border:1px solid var(--line)">12 monitored basins • 3D globe or flat map</span>
             <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:9999px;background:rgba(255,255,255,0.06);color:var(--text-2);border:1px solid var(--line)">12 monitored basins • Interactive 3D Earth Globe</span>
           </div>
         </header>
         <div class="map-layout">
           <div class="panel map-panel">
             <div class="map-frame is-globe" id="mapFrame">
-              <div class="seg-toggle" role="tablist" aria-label="Map view">
-                <button type="button" role="tab" data-mapmode="globe" aria-selected="true">3D globe</button>
-                <button type="button" role="tab" data-mapmode="flat" aria-selected="false">Flat map</button>
-              </div>
-            <div class="map-frame" id="mapFrame">
               <canvas class="globe-canvas" id="globeCanvas" tabindex="0" role="img"
                       aria-label="3D globe of the monitored flaring fields. Drag or use the arrow keys to spin it; the field list beside the map selects a field without the globe."></canvas>
-              <svg class="map-svg" id="mapSvg" role="img" hidden
-                   aria-label="Flat map of the monitored flaring fields, sized by observed flared volume"></svg>
               <div class="map-ctrl">
                 <button type="button" id="zoomIn" aria-label="Zoom in">+</button>
                 <button type="button" id="zoomOut" aria-label="Zoom out">−</button>
